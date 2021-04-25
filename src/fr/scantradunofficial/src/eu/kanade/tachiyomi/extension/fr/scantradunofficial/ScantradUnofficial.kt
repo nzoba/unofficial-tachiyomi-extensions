@@ -208,11 +208,19 @@ class ScantradUnofficial : ParsedHttpSource() {
 
     // Pages
 
+    override fun imageRequest(page: Page): Request {
+        return GET(page.imageUrl!!, headersBuilder().set("Referer", page.url).build())
+    }
+
     override fun pageListParse(document: Document): List<Page> {
         val pages = mutableListOf<Page>()
 
         document.select("div.sc-lel img[id]").forEachIndexed { i, img ->
-            pages.add(Page(i, "", img.attr("abs:data-src")))
+            if (img.attr("data-src").startsWith("lel", true)) {
+                pages.add(Page(i, "$baseUrl/", "https://scan-trad.fr/" + img.attr("data-src")))
+            } else {
+                pages.add(Page(i, "", img.attr("abs:data-src")))
+            }
         }
 
         return pages
