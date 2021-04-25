@@ -9,7 +9,6 @@ import eu.kanade.tachiyomi.source.model.Page
 import eu.kanade.tachiyomi.source.model.SChapter
 import eu.kanade.tachiyomi.source.model.SManga
 import eu.kanade.tachiyomi.source.online.ParsedHttpSource
-import eu.kanade.tachiyomi.util.asJsoup
 import okhttp3.Headers
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -19,6 +18,7 @@ import org.jsoup.nodes.Element
 import rx.Observable
 import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.HashSet
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 
@@ -72,16 +72,22 @@ class ScantradUnofficial : ParsedHttpSource() {
     // Latest
 
     override fun latestUpdatesRequest(page: Int): Request {
-        return GET(baseUrl, headers)
+        if (page == 1) latestUpdatesUrls.clear()
+
+        return GET("$baseUrl/?page=$page", headers)
     }
 
+    private val dedupeLatestUpdates = true
+
+    private val latestUpdatesUrls = HashSet<String>()
+
     override fun latestUpdatesParse(response: Response): MangasPage {
-        val document = response.asJsoup()
-        val mangas = mutableListOf<SManga>()
-
-        document.select(latestUpdatesSelector()).map { mangas.add(latestUpdatesFromElement(it)) }
-
-        return MangasPage(mangas.distinctBy { it.url }, false)
+        val mp = super.latestUpdatesParse(response)
+        return if (dedupeLatestUpdates) {
+            val mangas = mp.mangas.distinctBy { it.url }.filterNot { latestUpdatesUrls.contains(it.url) }
+            latestUpdatesUrls.addAll(mangas.map { it.url })
+            MangasPage(mangas, mp.hasNextPage)
+        } else mp
     }
 
     override fun latestUpdatesSelector() = "#home-chapter div.home-manga"
@@ -96,7 +102,7 @@ class ScantradUnofficial : ParsedHttpSource() {
         return manga
     }
 
-    override fun latestUpdatesNextPageSelector() = "not needed"
+    override fun latestUpdatesNextPageSelector() = "a#pageNext"
 
     // Search
 
