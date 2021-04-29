@@ -5,7 +5,7 @@ ext {
     extName = 'Scantrad Unofficial'
     pkgNameSuffix = 'fr.scantradunofficial'
     extClass = '.ScantradUnofficial'
-    extVersionCode = 3
+    extVersionCode = 4
     libVersion = '1.2'
 }
 

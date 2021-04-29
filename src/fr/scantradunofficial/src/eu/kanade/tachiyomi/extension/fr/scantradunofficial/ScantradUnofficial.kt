@@ -95,8 +95,8 @@ class ScantradUnofficial : ParsedHttpSource() {
     override fun latestUpdatesFromElement(element: Element): SManga {
         val manga = SManga.create()
 
-        manga.setUrlWithoutDomain(element.select("div.hmi-titre a").attr("abs:href"))
-        manga.title = element.select("div.hmi-titre a").text()
+        manga.setUrlWithoutDomain(element.select("div.hm-info a.hmi-titre").attr("abs:href"))
+        manga.title = element.select("a.hmi-titre span").text()
         manga.thumbnail_url = element.select("a.hm-image img").attr("abs:data-src")
 
         return manga
