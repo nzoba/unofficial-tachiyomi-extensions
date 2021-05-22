@@ -9,6 +9,6 @@ class WPMangaStreamFactory : SourceFactory {
     )
 }
 
-class AsuraScans : WPMangaStream("Asura Scans Unofficial", "https://asurascans.com", "en") {
+class AsuraScans : WPMangaStream("Asura Scans Unofficial", "https://www.asurascans.com", "en") {
     override val pageSelector = "div#readerarea img[loading*=lazy]"
 }
