@@ -1,7 +1,7 @@
 // used both in common.gradle and themesources library
 dependencies {
     // Lib 1.2, but using specific commit so we don't need to bump up the version
-    compileOnly "com.github.tachiyomiorg:extensions-lib:8dd92e3"
+    compileOnly "com.github.tachiyomiorg:extensions-lib:cfa9530"
 
     // These are provided by the app itself
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
@@ -12,6 +12,8 @@ dependencies {
     compileOnly 'org.jsoup:jsoup:1.13.1'
     compileOnly 'com.google.code.gson:gson:2.8.6'
     compileOnly 'com.github.salomonbrys.kotson:kotson:2.5.0'
+    compileOnly 'org.jetbrains.kotlinx:kotlinx-serialization-protobuf:1.2.0'
+    compileOnly 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.0'
 
     implementation project(":annotations")
     compileOnly project(':duktape-stub')
