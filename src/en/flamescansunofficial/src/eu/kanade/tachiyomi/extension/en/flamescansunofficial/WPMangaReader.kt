@@ -140,10 +140,16 @@ abstract class WPMangaReader(
         }
     }
 
+    private fun toPermanentUrl(manga: SManga) {
+        val regex = "/(\\d*)-".toRegex()
+        manga.url = manga.url.replace(regex, "/")
+    }
+
     override fun searchMangaFromElement(element: Element) = SManga.create().apply {
         thumbnail_url = element.select("img").attr("abs:src")
         title = element.select("a").attr("title")
         setUrlWithoutDomain(element.select("a").attr("href"))
+        toPermanentUrl(this)
     }
 
     override fun searchMangaNextPageSelector() = "div.pagination .next, div.hpage .r"
