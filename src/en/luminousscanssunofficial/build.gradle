@@ -1,0 +1,16 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+
+ext {
+    extName = 'Luminous Scans Unofficial'
+    pkgNameSuffix = 'en.luminousscansunofficial'
+    extClass = '.WPMangaReaderFactory'
+    extVersionCode = 1
+    libVersion = '1.2'
+}
+
+dependencies {
+    implementation project(':lib-ratelimit')
+}
+
+apply from: "$rootDir/common.gradle"
