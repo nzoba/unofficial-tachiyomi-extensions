@@ -67,7 +67,7 @@ abstract class WPMangaStream(
 
     private fun getShowThumbnail(): Int = preferences.getInt(SHOW_THUMBNAIL_PREF, 0)
 
-    private val rateLimitInterceptor = RateLimitInterceptor(2)
+    private val rateLimitInterceptor = RateLimitInterceptor(3)
 
     override val client: OkHttpClient = network.cloudflareClient.newBuilder()
         .connectTimeout(10, TimeUnit.SECONDS)
@@ -268,7 +268,7 @@ abstract class WPMangaStream(
         val pages = mutableListOf<Page>()
         document.select(pageSelector)
             .filterNot { it.attr("src").isNullOrEmpty() }
-            .mapIndexed { i, img -> pages.add(Page(i, "", img.attr("abs:src"))) }
+            .mapIndexed { i, img -> pages.add(Page(i, "", img.attr("src"))) }
 
         // Some wpmangastream sites now load pages via javascript
         if (pages.isNotEmpty()) { return pages }

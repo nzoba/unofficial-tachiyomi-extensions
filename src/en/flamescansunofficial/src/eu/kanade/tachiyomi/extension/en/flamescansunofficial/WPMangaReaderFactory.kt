@@ -37,7 +37,7 @@ class FlameScans : WPMangaReader(
         .connectTimeout(10, TimeUnit.SECONDS)
         .readTimeout(30, TimeUnit.SECONDS)
         .addInterceptor(::composedImageIntercept)
-        .addInterceptor(RateLimitInterceptor(1, 1, TimeUnit.SECONDS))
+        .addInterceptor(RateLimitInterceptor(3, 1, TimeUnit.SECONDS))
         .build()
 
     protected open val userAgentRandomizer = " ${Random.nextInt().absoluteValue}"

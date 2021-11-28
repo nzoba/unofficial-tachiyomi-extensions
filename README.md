@@ -2,6 +2,8 @@
 Scantrad
 Asura Scans
 Flame Scans
+Leviatan Scans
+Luminous Scans
 ```
 ---
 
