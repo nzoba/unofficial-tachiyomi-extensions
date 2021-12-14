@@ -2,7 +2,6 @@ package eu.kanade.tachiyomi.extension.en.asurascansunofficial
 
 import android.app.Application
 import android.content.SharedPreferences
-import eu.kanade.tachiyomi.lib.ratelimit.RateLimitInterceptor // added to override
 import eu.kanade.tachiyomi.network.GET
 import eu.kanade.tachiyomi.source.ConfigurableSource
 import eu.kanade.tachiyomi.source.model.Filter
@@ -67,12 +66,9 @@ abstract class WPMangaStream(
 
     private fun getShowThumbnail(): Int = preferences.getInt(SHOW_THUMBNAIL_PREF, 0)
 
-    private val rateLimitInterceptor = RateLimitInterceptor(3)
-
     override val client: OkHttpClient = network.cloudflareClient.newBuilder()
         .connectTimeout(10, TimeUnit.SECONDS)
         .readTimeout(30, TimeUnit.SECONDS)
-        .addNetworkInterceptor(rateLimitInterceptor)
         .build()
 
     protected fun Element.imgAttr(): String = if (this.hasAttr("data-src")) this.attr("abs:data-src") else this.attr("abs:src")
