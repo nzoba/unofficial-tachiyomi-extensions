@@ -113,7 +113,7 @@ interface ThemeSourceGenerator {
                 writeSourceClasses(projectSrcPath, srcOverridePath, source, themePkg, themeClass)
                 copyThemeClasses(userDir, themePkg, projectRootPath)
 
-                copyResFiles(resOverridePath, defaultResPath, source, projectRootPath)
+                copyResFiles(resOverridePath, defaultResPath, projectRootPath)
             }
         }
 
@@ -130,7 +130,7 @@ interface ThemeSourceGenerator {
                     .forEach { Files.copy(File("$themeSrcPath/$it").toPath(), File("$themeDestPath/$it").toPath(), StandardCopyOption.REPLACE_EXISTING) }
         }
 
-        private fun copyResFiles(resOverridePath: String, defaultResPath: String, source: ThemeSourceData, projectRootPath: String): Any {
+        private fun copyResFiles(resOverridePath: String, defaultResPath: String, projectRootPath: String): Any {
             // check if res override exists if not copy default res
             val resOverride = File(resOverridePath)
             return if (resOverride.exists())
@@ -218,7 +218,7 @@ sealed class ThemeSourceData {
             val lang: String,
             override val isNsfw: Boolean = false,
             override val className: String = name.replace(" ", ""),
-            override val pkgName: String = className.toLowerCase(Locale.ENGLISH),
+            override val pkgName: String = className.lowercase(Locale.ENGLISH),
             override val overrideVersionCode: Int = 0,
     ) : ThemeSourceData()
 
@@ -228,7 +228,7 @@ sealed class ThemeSourceData {
             val langs: List<String>,
             override val isNsfw: Boolean = false,
             override val className: String = name.replace(" ", "") + "Factory",
-            override val pkgName: String = className.substringBefore("Factory").toLowerCase(Locale.ENGLISH),
+            override val pkgName: String = className.substringBefore("Factory").lowercase(Locale.ENGLISH),
             override val overrideVersionCode: Int = 0,
     ) : ThemeSourceData()
 }

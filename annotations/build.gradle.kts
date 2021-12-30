@@ -3,5 +3,5 @@ plugins {
 }
 
 dependencies {
-    compileOnly(Deps.kotlin.stdlib)
+    compileOnly(Deps.Kotlin.stdlib)
 }

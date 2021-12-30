@@ -72,7 +72,7 @@ abstract class WPMangaStream(
         .build()
 
     protected fun Element.imgAttr(): String = if (this.hasAttr("data-src")) this.attr("abs:data-src") else this.attr("abs:src")
-    protected fun Elements.imgAttr(): String = this.first().imgAttr()
+    protected fun Elements.imgAttr(): String = this.first()!!.imgAttr()
 
     override fun popularMangaRequest(page: Int): Request {
         return GET("$baseUrl/manga/?page=$page&order=popular", headers)
@@ -126,7 +126,7 @@ abstract class WPMangaStream(
         val manga = SManga.create()
         manga.thumbnail_url = element.select("div.limit img").imgAttr()
         element.select("div.bsx > a").first().let {
-            manga.setUrlWithoutDomain(it.attr("href"))
+            manga.setUrlWithoutDomain(it!!.attr("href"))
             manga.title = it.attr("title")
         }
         return manga
@@ -149,13 +149,13 @@ abstract class WPMangaStream(
                 thumbnail_url = infoElement.select("div.thumb img").imgAttr()
 
                 val genres = infoElement.select("span:contains(Genre) a, .mgen a")
-                    .map { element -> element.text().toLowerCase(Locale.ROOT) }
+                    .map { element -> element.text().lowercase(Locale.ROOT) }
                     .toMutableSet()
 
                 // add series type(manga/manhwa/manhua/other) thinggy to genre
                 document.select(seriesTypeSelector).firstOrNull()?.ownText()?.let {
                     if (it.isEmpty().not() && genres.contains(it).not()) {
-                        genres.add(it.toLowerCase(Locale.ROOT))
+                        genres.add(it.lowercase(Locale.ROOT))
                     }
                 }
 
@@ -206,9 +206,12 @@ abstract class WPMangaStream(
     override fun chapterFromElement(element: Element): SChapter {
         val urlElement = element.select(".lchx > a, span.leftoff a, div.eph-num > a").first()
         val chapter = SChapter.create()
-        chapter.setUrlWithoutDomain(urlElement.attr("href"))
-        chapter.name = if (urlElement.select("span.chapternum").isNotEmpty()) urlElement.select("span.chapternum").text() else urlElement.text()
-        chapter.date_upload = element.select("span.rightoff, time, span.chapterdate").firstOrNull()?.text()?.let { parseChapterDate(it) } ?: 0
+        if (urlElement != null) {
+            chapter.setUrlWithoutDomain(urlElement.attr("href"))
+            chapter.name = if (urlElement.select("span.chapternum").isNotEmpty()) urlElement.select("span.chapternum").text() else urlElement.text()
+            chapter.date_upload = element.select("span.rightoff, time, span.chapterdate").firstOrNull()?.text()?.let { parseChapterDate(it) }
+                ?: 0
+        }
         return chapter
     }
 

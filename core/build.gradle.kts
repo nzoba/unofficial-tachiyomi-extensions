@@ -3,10 +3,10 @@ plugins {
 }
 
 android {
-    compileSdkVersion(Config.compileSdk)
+    compileSdk = Config.compileSdk
 
     defaultConfig {
-        minSdkVersion(Config.minSdk)
+        minSdk = Config.minSdk
     }
 
     sourceSets {
