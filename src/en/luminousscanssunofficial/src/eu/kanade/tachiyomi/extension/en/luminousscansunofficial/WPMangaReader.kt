@@ -136,7 +136,7 @@ abstract class WPMangaReader(
 
     private fun parseGenres(document: Document): List<LabeledValue>? {
         return document.selectFirst("ul.c4")?.select("li")?.map { li ->
-            LabeledValue(li.selectFirst("label").text(), li.selectFirst("input[type=checkbox]").`val`())
+            LabeledValue(li.selectFirst("label")!!.text(), li.selectFirst("input[type=checkbox]")!!.`val`())
         }
     }
 
@@ -168,7 +168,7 @@ abstract class WPMangaReader(
                 .text()
         )
 
-        title = document.selectFirst("h1.entry-title").text()
+        title = document.selectFirst("h1.entry-title")!!.text()
         thumbnail_url = document.select(".infomanga > div[itemprop=image] img, .thumb img").attr("abs:src")
         description = document.select(".desc, .entry-content[itemprop=description]").joinToString("\n") { it.text() }
 

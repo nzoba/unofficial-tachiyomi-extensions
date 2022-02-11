@@ -136,7 +136,7 @@ abstract class WPMangaReader(
 
     private fun parseGenres(document: Document): List<LabeledValue>? {
         return document.selectFirst("ul.c4")?.select("li")?.map { li ->
-            LabeledValue(li.selectFirst("label").text(), li.selectFirst("input[type=checkbox]").`val`())
+            LabeledValue(li.selectFirst("label")!!.text(), li.selectFirst("input[type=checkbox]")!!.`val`())
         }
     }
 
@@ -156,21 +156,15 @@ abstract class WPMangaReader(
 
     // manga details
     override fun mangaDetailsParse(document: Document) = SManga.create().apply {
-        author = document.select(".listinfo li:contains(Author), .tsinfo .imptdt:nth-child(4) i, .infotable tr:contains(author) td:last-child")
-            .firstOrNull()?.ownText()
-
-        artist = document.select(".infotable tr:contains(artist) td:last-child, .tsinfo .imptdt:contains(artist) i")
-            .firstOrNull()?.ownText()
+        author = document.select("div.tsinfo h1:contains(Author) + i").firstOrNull()?.ownText()
+        artist = document.select("div.tsinfo h1:contains(Artist) + i").firstOrNull()?.ownText()
 
         genre = document.select("div.gnr a, .mgen a, .seriestugenre a").joinToString { it.text() }
-        status = parseStatus(
-            document.select("div.listinfo li:contains(Status), .tsinfo .imptdt:contains(status), .infotable tr:contains(status) td")
-                .text()
-        )
+        status = parseStatus(document.select("div.main-info div.status i").text())
 
-        title = document.selectFirst("h1.entry-title").text()
+        title = document.selectFirst("h1.entry-title")!!.text()
         thumbnail_url = document.select(".infomanga > div[itemprop=image] img, .thumb img").attr("abs:src")
-        description = document.select(".desc, .entry-content[itemprop=description]").joinToString("\n") { it.text() }
+        description = document.select(".desc, .entry-content[itemprop=description] p").joinToString("\n") { it.text() }
 
         // add series type(manga/manhwa/manhua/other) thinggy to genre
         document.select(seriesTypeSelector).firstOrNull()?.ownText()?.let {
@@ -191,7 +185,7 @@ abstract class WPMangaReader(
     }
 
     open val seriesTypeSelector = "span:contains(Type) a, .imptdt:contains(Type) a, a[href*=type\\=], .infotable tr:contains(Type) td:last-child"
-    open val altNameSelector = ".alternative, .seriestualt"
+    open val altNameSelector = ".alternative div.desktop-titles"
     open val altName = "Alternative Name" + ": "
 
     open fun parseStatus(status: String) = when {

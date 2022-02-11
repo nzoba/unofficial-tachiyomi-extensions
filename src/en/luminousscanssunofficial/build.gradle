@@ -5,7 +5,7 @@ ext {
     extName = 'Luminous Scans Unofficial'
     pkgNameSuffix = 'en.luminousscansunofficial'
     extClass = '.WPMangaReaderFactory'
-    extVersionCode = 3
+    extVersionCode = 5
     libVersion = '1.2'
 }
 
