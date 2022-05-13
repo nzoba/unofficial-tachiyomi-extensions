@@ -16,45 +16,6 @@ jobs:
       - name: Validate Gradle Wrapper
         uses: gradle/wrapper-validation-action@v1
 
-  build_multisrc:
-    name: Build multisrc modules
-    needs: check_wrapper
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        lang: [all, en, ar, ca, de, es, fr, id, it, ja, ko, pt, ru, th, tr, vi, zh, bg, hi, pl]
-    steps:
-      - name: Checkout PR
-        uses: actions/checkout@v2
-
-      - name: Set up JDK
-        uses: actions/setup-java@v1
-        with:
-          java-version: 1.8
-
-      - name: Copy CI gradle.properties
-        run: |
-          mkdir -p ~/.gradle
-          cp .github/runner-files/ci-gradle.properties ~/.gradle/gradle.properties
-
-      - name: Generate sources from the multi-source library
-        uses: gradle/gradle-command-action@v2
-        env:
-          CI_MULTISRC: "true"
-        with:
-          arguments: :multisrc:generateExtensions
-          cache-disabled: true
-
-      - name: Build "${{ matrix.lang }}" extensions
-        uses: gradle/gradle-command-action@v2
-        env:
-          CI_MULTISRC: "true"
-          CI_MATRIX_LANG: ${{ matrix.lang }}
-        with:
-          arguments: assembleDebug
-          cache-disabled: true
-
   build_individual:
     name: Build individual modules
     needs: check_wrapper
@@ -62,7 +23,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        lang: [all, en, ar, ca, de, es, fr, id, it, ja, ko, pt, ru, th, tr, vi, zh, bg, hi, pl]
+        lang: [all, en, fr]
     steps:
       - name: Checkout PR
         uses: actions/checkout@v2
@@ -80,7 +41,6 @@ jobs:
       - name: Build "${{ matrix.lang }}" extensions
         uses: gradle/gradle-command-action@v2
         env:
-          CI_MULTISRC: "false"
           CI_MATRIX_LANG: ${{ matrix.lang }}
         with:
           arguments: assembleDebug

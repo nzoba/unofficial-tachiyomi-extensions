@@ -13,23 +13,12 @@ project(":lib-dataimage").projectDir = File("lib/dataimage")
 if (System.getenv("CI") == null || System.getenv("CI_PUSH") == "true") {
     // Local development or full build for push
 
-    include(":multisrc")
-    project(":multisrc").projectDir = File("multisrc")
-
     // Loads all extensions
     File(rootDir, "src").eachDir { dir ->
         dir.eachDir { subdir ->
             val name = ":extensions:individual:${dir.name}:${subdir.name}"
             include(name)
             project(name).projectDir = File("src/${dir.name}/${subdir.name}")
-        }
-    }
-    // Loads generated extensions from multisrc
-    File(rootDir, "generated-src").eachDir { dir ->
-        dir.eachDir { subdir ->
-            val name = ":extensions:multisrc:${dir.name}:${subdir.name}"
-            include(name)
-            project(name).projectDir = File("generated-src/${dir.name}/${subdir.name}")
         }
     }
 
@@ -44,32 +33,15 @@ if (System.getenv("CI") == null || System.getenv("CI_PUSH") == "true") {
 } else {
     // Running in CI (GitHub Actions)
 
-    val isMultisrc = System.getenv("CI_MULTISRC") == "true"
     val lang = System.getenv("CI_MATRIX_LANG")
 
-    if (isMultisrc) {
-        include(":multisrc")
-        project(":multisrc").projectDir = File("multisrc")
-
-        // Loads generated extensions from multisrc
-        File(rootDir, "generated-src").eachDir { dir ->
-            if (dir.name == lang) {
-                dir.eachDir { subdir ->
-                    val name = ":extensions:multisrc:${dir.name}:${subdir.name}"
-                    include(name)
-                    project(name).projectDir = File("generated-src/${dir.name}/${subdir.name}")
-                }
-            }
-        }
-    } else {
-        // Loads all extensions
-        File(rootDir, "src").eachDir { dir ->
-            if (dir.name == lang) {
-                dir.eachDir { subdir ->
-                    val name = ":extensions:individual:${dir.name}:${subdir.name}"
-                    include(name)
-                    project(name).projectDir = File("src/${dir.name}/${subdir.name}")
-                }
+    // Loads all extensions
+    File(rootDir, "src").eachDir { dir ->
+        if (dir.name == lang) {
+            dir.eachDir { subdir ->
+                val name = ":extensions:individual:${dir.name}:${subdir.name}"
+                include(name)
+                project(name).projectDir = File("src/${dir.name}/${subdir.name}")
             }
         }
     }
