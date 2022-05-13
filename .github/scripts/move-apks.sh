@@ -3,8 +3,8 @@ set -e
 shopt -s globstar nullglob extglob
 
 # Get APKs from previous jobs' artifacts
-#cp -R ~/apk-artifacts/ $PWD
-APKS=( **/release/*".apk" )
+cp -R ~/apk-artifacts/ $PWD
+APKS=( **/*".apk" )
 
 # Fail if too little extensions seem to have been built
 if [ "${#APKS[@]}" -le "1" ]; then

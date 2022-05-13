@@ -8,7 +8,7 @@ git status
 if [ -n "$(git status --porcelain)" ]; then
     git add .
     git commit -m "Update extensions repo"
-    #git push
+    git push
 else
     echo "No changes to commit"
 fi
