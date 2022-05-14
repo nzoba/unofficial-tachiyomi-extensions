@@ -31,7 +31,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        lang: [all, en, fr]
+        lang: [en, fr]
     steps:
       - name: Checkout master branch
         uses: actions/checkout@v2
