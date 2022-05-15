@@ -5,7 +5,7 @@ import eu.kanade.tachiyomi.source.SourceFactory
 import eu.kanade.tachiyomi.source.model.Page
 import org.jsoup.nodes.Document
 
-class WPMangaReaderFactory : SourceFactory {
+class LuminousScansFactory : SourceFactory {
     override fun createSources(): List<Source> = listOf(
         LuminousScans(),
     )

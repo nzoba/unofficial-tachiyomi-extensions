@@ -4,8 +4,8 @@ apply plugin: 'kotlin-android'
 ext {
     extName = 'Leviatan Scans Unofficial'
     pkgNameSuffix = 'en.leviatanscansunofficial'
-    extClass = '.MadaraFactory'
-    extVersionCode = 1
+    extClass = '.LeviatanScansFactory'
+    extVersionCode = 2
     libVersion = '1.2'
 }
 

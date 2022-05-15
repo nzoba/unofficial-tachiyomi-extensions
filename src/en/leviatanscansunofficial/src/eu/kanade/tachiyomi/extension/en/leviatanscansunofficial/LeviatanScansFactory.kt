@@ -5,7 +5,7 @@ import eu.kanade.tachiyomi.source.SourceFactory
 import eu.kanade.tachiyomi.source.model.SManga
 import org.jsoup.nodes.Element
 
-class MadaraFactory : SourceFactory {
+class LeviatanScansFactory : SourceFactory {
     override fun createSources(): List<Source> = listOf(
         LeviatanScans(),
     )
@@ -17,21 +17,14 @@ class LeviatanScans : Madara(
     "en"
 ) {
     override val useNewChapterEndpoint: Boolean = true
+    override val mangaDetailsSelectorDescription = "div.post-content div.manga-excerpt"
 
     override fun popularMangaFromElement(element: Element): SManga {
-        val manga = super.popularMangaFromElement(element)
-
-        toPermanentUrl(manga)
-
-        return manga
+        return super.popularMangaFromElement(element).apply { toPermanentUrl(this) }
     }
 
     override fun searchMangaFromElement(element: Element): SManga {
-        val manga = super.searchMangaFromElement(element)
-
-        toPermanentUrl(manga)
-
-        return manga
+        return super.searchMangaFromElement(element).apply { toPermanentUrl(this) }
     }
 
     private fun toPermanentUrl(manga: SManga) {

@@ -4,7 +4,6 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Rect
-import eu.kanade.tachiyomi.lib.ratelimit.RateLimitInterceptor
 import eu.kanade.tachiyomi.source.Source
 import eu.kanade.tachiyomi.source.SourceFactory
 import eu.kanade.tachiyomi.source.model.Page
@@ -21,7 +20,7 @@ import java.util.concurrent.TimeUnit
 import kotlin.math.absoluteValue
 import kotlin.random.Random
 
-class WPMangaReaderFactory : SourceFactory {
+class FlameScansFactory : SourceFactory {
     override fun createSources(): List<Source> = listOf(
         FlameScans(),
     )
@@ -37,10 +36,18 @@ class FlameScans : WPMangaReader(
         .connectTimeout(10, TimeUnit.SECONDS)
         .readTimeout(30, TimeUnit.SECONDS)
         .addInterceptor(::composedImageIntercept)
-        .addInterceptor(RateLimitInterceptor(3, 1, TimeUnit.SECONDS))
         .build()
 
-    protected open val userAgentRandomizer = " ${Random.nextInt().absoluteValue}"
+    override val seriesAuthorSelector = "div.tsinfo h1:contains(Author) + i"
+    override val seriesArtistSelector = "div.tsinfo h1:contains(Artist) + i"
+    override val seriesGenreSelector = "div.gnr a, .mgen a, .seriestugenre a"
+    override val seriesStatusSelector = "div.main-info div.status i"
+    override val seriesTitleSelector = "h1.entry-title"
+    override val seriesThumbnailSelector = ".infomanga > div[itemprop=image] img, .thumb img"
+    override val seriesDescriptionSelector = ".desc, .entry-content[itemprop=description] p"
+    override val seriesTypeSelector = "div.tsinfo h1:contains(Type) + i"
+
+    private val userAgentRandomizer = " ${Random.nextInt().absoluteValue}"
 
     override fun headersBuilder(): Headers.Builder = Headers.Builder()
         .add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:77.0) Gecko/20100101 Firefox/78.0$userAgentRandomizer")

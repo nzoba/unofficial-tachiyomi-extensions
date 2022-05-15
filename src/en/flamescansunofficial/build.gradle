@@ -4,8 +4,8 @@ apply plugin: 'kotlin-android'
 ext {
     extName = 'Flame Scans Unofficial'
     pkgNameSuffix = 'en.flamescansunofficial'
-    extClass = '.WPMangaReaderFactory'
-    extVersionCode = 4
+    extClass = '.FlameScansFactory'
+    extVersionCode = 5
     libVersion = '1.2'
 }
 

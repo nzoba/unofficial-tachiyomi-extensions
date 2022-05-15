@@ -3,7 +3,7 @@ package eu.kanade.tachiyomi.extension.en.asurascansunofficial
 import eu.kanade.tachiyomi.source.Source
 import eu.kanade.tachiyomi.source.SourceFactory
 
-class WPMangaStreamFactory : SourceFactory {
+class AsuraScansFactory : SourceFactory {
     override fun createSources(): List<Source> = listOf(
         AsuraScans(),
     )

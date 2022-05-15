@@ -4,8 +4,8 @@ apply plugin: 'kotlin-android'
 ext {
     extName = 'Asura Scans Unofficial'
     pkgNameSuffix = 'en.asurascansunofficial'
-    extClass = '.WPMangaStreamFactory'
-    extVersionCode = 8
+    extClass = '.AsuraScansFactory'
+    extVersionCode = 9
     libVersion = '1.2'
 }
 
