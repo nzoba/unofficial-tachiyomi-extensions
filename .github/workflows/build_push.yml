@@ -19,7 +19,7 @@ jobs:
           all_but_latest: true
 
       - name: Clone repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Validate Gradle Wrapper
         uses: gradle/wrapper-validation-action@v1
@@ -34,12 +34,13 @@ jobs:
         lang: [en, fr]
     steps:
       - name: Checkout master branch
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up JDK
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v3
         with:
           java-version: 11
+          distribution: adopt
 
       - name: Copy CI files
         run: |
@@ -55,8 +56,7 @@ jobs:
           KEY_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         with:
-          arguments: assembleRelease
-          cache-disabled: true
+          arguments: assembleRelease -x lintKotlin
 
       - name: Upload "${{ matrix.lang }}" APKs
         uses: actions/upload-artifact@v2
@@ -82,12 +82,13 @@ jobs:
           path: ~/apk-artifacts
 
       - name: Set up JDK
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v3
         with:
           java-version: 11
+          distribution: adopt
 
       - name: Checkout master branch
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           ref: master
           path: master
@@ -102,7 +103,7 @@ jobs:
           ./.github/scripts/create-repo.sh
 
       - name: Checkout repo branch
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           ref: repo
           path: repo
