@@ -196,8 +196,10 @@ abstract class WPMangaReader(
     open val altName = "Alternative Name" + ": "
 
     open fun parseStatus(status: String) = when {
-        status.contains("Ongoing") -> SManga.ONGOING
-        status.contains("Completed") -> SManga.COMPLETED
+        status.contains("ongoing", ignoreCase = true) -> SManga.ONGOING
+        status.contains("completed", ignoreCase = true) -> SManga.COMPLETED
+        listOf("dropped", "cancelled").any { status.contains(it, ignoreCase = true) } -> SManga.CANCELLED
+        status.contains("hiatus", ignoreCase = true) -> SManga.ON_HIATUS
         else -> SManga.UNKNOWN
     }
 

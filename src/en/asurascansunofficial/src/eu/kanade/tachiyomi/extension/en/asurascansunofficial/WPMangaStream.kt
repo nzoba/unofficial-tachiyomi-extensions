@@ -188,8 +188,10 @@ abstract class WPMangaStream(
 
     protected fun parseStatus(element: String?): Int = when {
         element == null -> SManga.UNKNOWN
-        listOf("ongoing", "publishing").any { it.contains(element, ignoreCase = true) } -> SManga.ONGOING
-        listOf("completed").any { it.contains(element, ignoreCase = true) } -> SManga.COMPLETED
+        listOf("ongoing", "publishing").any { element.contains(it, ignoreCase = true) } -> SManga.ONGOING
+        listOf("completed").any { element.contains(it, ignoreCase = true) } -> SManga.COMPLETED
+        listOf("dropped", "cancelled").any { element.contains(it, ignoreCase = true) } -> SManga.CANCELLED
+        listOf("hiatus").any { element.contains(it, ignoreCase = true) } -> SManga.ON_HIATUS
         else -> SManga.UNKNOWN
     }
 

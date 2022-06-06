@@ -659,6 +659,9 @@ abstract class Madara(
                     // There's no support for "Canceled" or "On Hold"
                     in completedStatusList -> SManga.COMPLETED
                     in ongoingStatusList -> SManga.ONGOING
+                    in listOf("Dropped", "Cancelled") -> SManga.CANCELLED
+                    in listOf("Hiatus", "On Hold") -> SManga.ON_HIATUS
+                    in listOf("Licensed") -> SManga.LICENSED
                     else -> SManga.UNKNOWN
                 }
             }

@@ -143,8 +143,10 @@ class ScantradUnofficial : ParsedHttpSource() {
     }
 
     private fun parseStatus(status: String) = when {
-        status.contains("En cours") -> SManga.ONGOING
-        status.contains("Terminé") -> SManga.COMPLETED
+        status.contains("en cours", ignoreCase = true) -> SManga.ONGOING
+        status.contains("terminé", ignoreCase = true) -> SManga.COMPLETED
+        status.contains("arrêté", ignoreCase = true) -> SManga.CANCELLED
+        status.contains("en pause", ignoreCase = true) -> SManga.ON_HIATUS
         else -> SManga.UNKNOWN
     }
 
