@@ -5,12 +5,7 @@ ext {
     extName = 'Asura Scans Unofficial'
     pkgNameSuffix = 'en.asurascansunofficial'
     extClass = '.AsuraScansFactory'
-    extVersionCode = 9
-    libVersion = '1.2'
-}
-
-dependencies {
-    implementation project(':lib-ratelimit')
+    extVersionCode = 10
 }
 
 apply from: "$rootDir/common.gradle"

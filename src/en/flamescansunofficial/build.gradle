@@ -5,12 +5,7 @@ ext {
     extName = 'Flame Scans Unofficial'
     pkgNameSuffix = 'en.flamescansunofficial'
     extClass = '.FlameScansFactory'
-    extVersionCode = 5
-    libVersion = '1.2'
-}
-
-dependencies {
-    implementation project(':lib-ratelimit')
+    extVersionCode = 6
 }
 
 apply from: "$rootDir/common.gradle"

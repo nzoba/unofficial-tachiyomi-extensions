@@ -11,4 +11,6 @@ class AsuraScansFactory : SourceFactory {
 
 class AsuraScans : WPMangaStream("Asura Scans Unofficial", "https://www.asurascans.com", "en") {
     override val pageSelector = "div#readerarea img[class*=wp-image-]"
+
+    override val mangaDetailsSelectorDescription = "div.desc p, div.entry-content p, div[itemprop=description]:not(:has(p))"
 }

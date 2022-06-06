@@ -278,6 +278,7 @@ abstract class Madara(
                             if (list.isNotEmpty()) { list.forEach { genre -> url.addQueryParameter("genre[]", genre.id) } }
                         }
                 }
+                else -> {}
             }
         }
         return GET(url.toString(), headers)
@@ -408,6 +409,7 @@ abstract class Madara(
                             taxQueryIdx++
                         }
                     }
+                    else -> {}
                 }
             }
         }

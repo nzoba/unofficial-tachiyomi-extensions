@@ -120,6 +120,7 @@ abstract class WPMangaReader(
                             url = "$baseUrl$projectPageString/page/$page".toHttpUrlOrNull()!!.newBuilder()
                         }
                     }
+                    else -> {}
                 }
             }
         }

@@ -5,12 +5,7 @@ ext {
     extName = 'Luminous Scans Unofficial'
     pkgNameSuffix = 'en.luminousscansunofficial'
     extClass = '.LuminousScansFactory'
-    extVersionCode = 6
-    libVersion = '1.2'
-}
-
-dependencies {
-    implementation project(':lib-ratelimit')
+    extVersionCode = 7
 }
 
 apply from: "$rootDir/common.gradle"

@@ -22,7 +22,7 @@ android {
         targetSdkVersion Config.targetSdk
         applicationIdSuffix pkgNameSuffix
         versionCode extVersionCode
-        versionName "$libVersion.$extVersionCode"
+        versionName project.ext.properties.getOrDefault("libVersion", "1.3") + ".$extVersionCode"
         setProperty("archivesBaseName", "tachiyomi-$pkgNameSuffix-v$versionName")
         def readmes = project.projectDir.listFiles({ File file ->
             file.name.equals("README.md") ||

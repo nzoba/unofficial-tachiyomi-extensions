@@ -5,12 +5,7 @@ ext {
     extName = 'Scantrad Unofficial'
     pkgNameSuffix = 'fr.scantradunofficial'
     extClass = '.ScantradUnofficial'
-    extVersionCode = 4
-    libVersion = '1.2'
-}
-
-dependencies {
-    implementation project(':lib-ratelimit')
+    extVersionCode = 5
 }
 
 apply from: "$rootDir/common.gradle"
