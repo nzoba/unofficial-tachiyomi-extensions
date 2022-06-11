@@ -17,7 +17,7 @@ class LuminousScans : WPMangaReader(
     "en",
     "/series"
 ) {
-    override val pageSelector = "div#readerarea p img"
+    override val pageSelector = "div#readerarea img[class*=wp-image-]"
 
     override fun pageListParse(document: Document): List<Page> {
         return document.select(pageSelector).mapIndexed { i, img ->
