@@ -4,6 +4,8 @@ import eu.kanade.tachiyomi.source.Source
 import eu.kanade.tachiyomi.source.SourceFactory
 import eu.kanade.tachiyomi.source.model.SManga
 import org.jsoup.nodes.Element
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class LeviatanScansFactory : SourceFactory {
     override fun createSources(): List<Source> = listOf(
@@ -14,10 +16,11 @@ class LeviatanScansFactory : SourceFactory {
 class LeviatanScans : Madara(
     "Leviatan Scans Unofficial",
     "https://leviatanscans.com",
-    "en"
+    "en",
+    SimpleDateFormat("MMM, yy", Locale.US)
 ) {
     override val useNewChapterEndpoint: Boolean = true
-    override val mangaDetailsSelectorDescription = "div.post-content div.manga-excerpt"
+    override val mangaDetailsSelectorStatus = ".post-content_item:contains(Status) .summary-content"
 
     override fun popularMangaFromElement(element: Element): SManga {
         return super.popularMangaFromElement(element).apply { toPermanentUrl(this) }

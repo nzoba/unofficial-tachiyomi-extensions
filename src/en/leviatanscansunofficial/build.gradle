@@ -5,7 +5,7 @@ ext {
     extName = 'Leviatan Scans Unofficial'
     pkgNameSuffix = 'en.leviatanscansunofficial'
     extClass = '.LeviatanScansFactory'
-    extVersionCode = 3
+    extVersionCode = 5
 }
 
 apply from: "$rootDir/common.gradle"
