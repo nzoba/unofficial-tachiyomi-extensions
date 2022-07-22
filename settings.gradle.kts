@@ -1,8 +1,6 @@
-include(":annotations")
-include(":core")
+enableFeaturePreview("VERSION_CATALOGS")
 
-include(":duktape-stub")
-project(":duktape-stub").projectDir = File("lib/duktape-stub")
+include(":core")
 
 include(":lib-dataimage")
 project(":lib-dataimage").projectDir = File("lib/dataimage")
@@ -44,6 +42,6 @@ if (System.getenv("CI") == null || System.getenv("CI_PUSH") == "true") {
     }
 }
 
-inline fun File.eachDir(block: (File) -> Unit) {
+fun File.eachDir(block: (File) -> Unit) {
     listFiles()?.filter { it.isDirectory }?.forEach { block(it) }
 }

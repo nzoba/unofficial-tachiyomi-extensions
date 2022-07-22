@@ -1,7 +1,7 @@
 apply plugin: 'org.jmailen.kotlinter'
 
 android {
-    compileSdkVersion Config.compileSdk
+    compileSdkVersion AndroidConfig.compileSdk
 
     sourceSets {
         main {
@@ -18,8 +18,8 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion Config.minSdk
-        targetSdkVersion Config.targetSdk
+        minSdkVersion AndroidConfig.minSdk
+        targetSdkVersion AndroidConfig.targetSdk
         applicationIdSuffix pkgNameSuffix
         versionCode extVersionCode
         versionName project.ext.properties.getOrDefault("libVersion", "1.3") + ".$extVersionCode"
@@ -79,6 +79,7 @@ android {
 
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_11.toString()
+        freeCompilerArgs += "-Xopt-in=kotlinx.serialization.ExperimentalSerializationApi"
     }
 }
 
@@ -87,9 +88,9 @@ repositories {
 }
 
 dependencies {
-    implementation project(":core")
+    implementation(project(":core"))
+    compileOnly(libs.bundles.common)
 }
-apply from: "$rootDir/common-dependencies.gradle"
 
 preBuild.dependsOn(lintKotlin)
 lintKotlin.dependsOn(formatKotlin)
