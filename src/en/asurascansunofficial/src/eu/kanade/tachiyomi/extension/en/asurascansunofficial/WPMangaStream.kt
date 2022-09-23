@@ -84,36 +84,37 @@ abstract class WPMangaStream(
 
     override fun searchMangaRequest(page: Int, query: String, filters: FilterList): Request {
         val url = "$baseUrl/manga/".toHttpUrlOrNull()!!.newBuilder()
-        url.addQueryParameter("title", query)
-        url.addQueryParameter("page", page.toString())
-        filters.forEach { filter ->
-            when (filter) {
-                is AuthorFilter -> {
-                    url.addQueryParameter("author", filter.state)
-                }
-                is YearFilter -> {
-                    url.addQueryParameter("yearx", filter.state)
-                }
-                is StatusFilter -> {
-                    val status = when (filter.state) {
-                        Filter.TriState.STATE_INCLUDE -> "completed"
-                        Filter.TriState.STATE_EXCLUDE -> "ongoing"
-                        else -> ""
+        if (query.isNotEmpty()) {
+            url.addPathSegments("page/$page").addQueryParameter("s", query)
+        } else {
+            url.addQueryParameter("page", "$page")
+            filters.forEach { filter ->
+                when (filter) {
+                    is AuthorFilter -> {
+                        url.addQueryParameter("author", filter.state)
                     }
-                    url.addQueryParameter("status", status)
+                    is YearFilter -> {
+                        url.addQueryParameter("yearx", filter.state)
+                    }
+                    is StatusFilter -> {
+                        url.addQueryParameter("status", filter.toUriPart())
+                    }
+                    is TypeFilter -> {
+                        url.addQueryParameter("type", filter.toUriPart())
+                    }
+                    is SortByFilter -> {
+                        url.addQueryParameter("order", filter.toUriPart())
+                    }
+                    is GenreListFilter -> {
+                        filter.state
+                            .filter { it.state != Filter.TriState.STATE_IGNORE }
+                            .forEach {
+                                val value = if (it.state == Filter.TriState.STATE_EXCLUDE) "-${it.id}" else it.id
+                                url.addQueryParameter("genre[]", value)
+                            }
+                    }
+                    else -> {}
                 }
-                is TypeFilter -> {
-                    url.addQueryParameter("type", filter.toUriPart())
-                }
-                is SortByFilter -> {
-                    url.addQueryParameter("order", filter.toUriPart())
-                }
-                is GenreListFilter -> {
-                    filter.state
-                        .filter { it.state != Filter.TriState.STATE_IGNORE }
-                        .forEach { url.addQueryParameter("genre[]", it.id) }
-                }
-                else -> {}
             }
         }
         return GET(url.build().toString(), headers)
@@ -357,7 +358,10 @@ abstract class WPMangaStream(
         arrayOf(
             Pair("All", ""),
             Pair("Ongoing", "ongoing"),
-            Pair("Completed", "completed")
+            Pair("Completed", "completed"),
+            Pair("Hiatus", "hiatus"),
+            Pair("Dropped", "dropped"),
+            Pair("Coming soon", "coming soon")
         )
     )
 
