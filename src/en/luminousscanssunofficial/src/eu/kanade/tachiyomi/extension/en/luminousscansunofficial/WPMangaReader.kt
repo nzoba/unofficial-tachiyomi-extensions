@@ -2,6 +2,7 @@ package eu.kanade.tachiyomi.extension.en.luminousscansunofficial
 
 import eu.kanade.tachiyomi.network.GET
 import eu.kanade.tachiyomi.network.asObservableSuccess
+import eu.kanade.tachiyomi.source.ConfigurableSource
 import eu.kanade.tachiyomi.source.model.Filter
 import eu.kanade.tachiyomi.source.model.FilterList
 import eu.kanade.tachiyomi.source.model.MangasPage
@@ -29,7 +30,7 @@ abstract class WPMangaReader(
     override val lang: String,
     val mangaUrlDirectory: String = "/manga",
     private val dateFormat: SimpleDateFormat = SimpleDateFormat("MMMM dd, yyyy", Locale.US)
-) : ParsedHttpSource() {
+) : ParsedHttpSource(), ConfigurableSource {
 
     override val supportsLatest = true
 
@@ -141,16 +142,10 @@ abstract class WPMangaReader(
         }
     }
 
-    private fun toPermanentUrl(manga: SManga) {
-        val regex = "/(\\d*)-".toRegex()
-        manga.url = manga.url.replace(regex, "/")
-    }
-
     override fun searchMangaFromElement(element: Element) = SManga.create().apply {
         thumbnail_url = element.select("img").attr("abs:src")
         title = element.select("a").attr("title")
         setUrlWithoutDomain(element.select("a").attr("href"))
-        toPermanentUrl(this)
     }
 
     override fun searchMangaNextPageSelector() = "div.pagination .next, div.hpage .r"

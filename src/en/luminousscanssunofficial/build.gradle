@@ -5,7 +5,7 @@ ext {
     extName = 'Luminous Scans Unofficial'
     pkgNameSuffix = 'en.luminousscansunofficial'
     extClass = '.LuminousScansFactory'
-    extVersionCode = 8
+    extVersionCode = 9
 }
 
 apply from: "$rootDir/common.gradle"
