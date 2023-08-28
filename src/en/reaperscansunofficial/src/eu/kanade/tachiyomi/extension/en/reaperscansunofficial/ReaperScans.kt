@@ -288,7 +288,7 @@ class ReaperScans : ParsedHttpSource() {
                     document.location(),
                     element.select("img").first()?.let {
                         it.absUrl(if (it.hasAttr("data-src")) "data-src" else "src")
-                    },
+                    }
                 )
             }
         } else {
