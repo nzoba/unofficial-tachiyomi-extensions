@@ -7,17 +7,15 @@ on:
     paths-ignore:
       - '**.md'
 
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
 jobs:
   check_wrapper:
     name: Validate Gradle Wrapper
     runs-on: ubuntu-latest
     steps:
-      - name: Cancel previous runs
-        uses: styfle/cancel-workflow-action@0.9.1
-        with:
-          access_token: ${{ github.token }}
-          all_but_latest: true
-
       - name: Clone repo
         uses: actions/checkout@v3
 
@@ -49,7 +47,7 @@ jobs:
           echo ${{ secrets.SIGNING_KEY }} | base64 -d > signingkey.jks
 
       - name: Build "${{ matrix.lang }}" extensions
-        uses: gradle/gradle-command-action@v2
+        uses: gradle/gradle-build-action@v2
         env:
           CI_MATRIX_LANG: ${{ matrix.lang }}
           ALIAS: ${{ secrets.ALIAS }}

@@ -63,7 +63,7 @@ class FlameScans : WPMangaReader(
             return super.pageListParse(document)
         }
 
-        return document.select("#readerarea p:has(img), $composedSelector")
+        return document.select("#readerarea p:has(img), $composedSelector").toList()
             .filter {
                 it.select("img").all { imgEl ->
                     imgEl.attr("abs:src").isNullOrEmpty().not()
