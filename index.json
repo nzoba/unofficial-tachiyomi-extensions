@@ -86,18 +86,18 @@
   {
     "name": "Tachiyomi: Reaper Scans Unofficial",
     "pkg": "eu.kanade.tachiyomi.extension.en.reaperscansunofficial",
-    "apk": "tachiyomi-en.reaperscansunofficial-v1.4.2.apk",
+    "apk": "tachiyomi-en.reaperscansunofficial-v1.4.3.apk",
     "lang": "en",
-    "code": 2,
-    "version": "1.4.2",
+    "code": 3,
+    "version": "1.4.3",
     "nsfw": 0,
     "hasReadme": 0,
     "hasChangelog": 0,
     "sources": [
       {
-        "name": "Reaper Scans",
+        "name": "Reaper Scans Unofficial",
         "lang": "en",
-        "id": "8918520211459944430",
+        "id": "5440079041698085584",
         "baseUrl": "https://reaperscans.com",
         "versionId": 1,
         "hasCloudflare": 1
@@ -107,18 +107,18 @@
   {
     "name": "Tachiyomi: Japscan Unofficial",
     "pkg": "eu.kanade.tachiyomi.extension.fr.japscanunofficial",
-    "apk": "tachiyomi-fr.japscanunofficial-v1.4.2.apk",
+    "apk": "tachiyomi-fr.japscanunofficial-v1.4.3.apk",
     "lang": "fr",
-    "code": 2,
-    "version": "1.4.2",
+    "code": 3,
+    "version": "1.4.3",
     "nsfw": 0,
     "hasReadme": 0,
     "hasChangelog": 0,
     "sources": [
       {
-        "name": "Japscan",
+        "name": "Japscan Unofficial",
         "lang": "fr",
-        "id": "657380042223499985",
+        "id": "8626226397710352170",
         "baseUrl": "https://www.japscan.lol",
         "versionId": 1,
         "hasCloudflare": 1
