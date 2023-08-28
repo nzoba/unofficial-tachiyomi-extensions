@@ -40,7 +40,7 @@ import kotlin.random.Random
 
 class ReaperScans : ParsedHttpSource() {
 
-    override val name = "Reaper Scans"
+    override val name = "Reaper Scans Unofficial"
 
     override val baseUrl = "https://reaperscans.com"
 

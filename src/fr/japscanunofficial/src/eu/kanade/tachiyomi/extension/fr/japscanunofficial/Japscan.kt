@@ -37,7 +37,7 @@ import java.util.Locale
 
 class Japscan : ConfigurableSource, ParsedHttpSource() {
 
-    override val name = "Japscan"
+    override val name = "Japscan Unofficial"
 
     override val baseUrl = "https://www.japscan.lol"
 
@@ -67,6 +67,7 @@ class Japscan : ConfigurableSource, ParsedHttpSource() {
         private const val CUSTOM_DECRYPT_KEYS_TITLE = "Utiliser des clés de decryptage custom"
         private const val CUSTOM_DECRYPT_KEYS = "JAPSCAN_CUSTOM_DECRYPT_KEYS"
         private const val CUSTOM_DECRYPT_KEYS_SUMMARY = "Permet d'indiquer des clés de decryptage manuellement\n" +
+            "Exemple : key1,key2\n" +
             "Laisser vide pour utiliser le comportement par défaut."
     }
 
@@ -389,8 +390,6 @@ class Japscan : ConfigurableSource, ParsedHttpSource() {
             title = CUSTOM_DECRYPT_KEYS_TITLE
             summary = CUSTOM_DECRYPT_KEYS_SUMMARY
             dialogMessage = CUSTOM_DECRYPT_KEYS_SUMMARY
-
-            setDefaultValue("key1,key2")
 
             setOnPreferenceChangeListener { _, newValue ->
                 try {
