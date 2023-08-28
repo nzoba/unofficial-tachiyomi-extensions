@@ -37,8 +37,6 @@ import java.util.Locale
 
 class Japscan : ConfigurableSource, ParsedHttpSource() {
 
-    override val id: Long = 1
-
     override val name = "Japscan"
 
     override val baseUrl = "https://www.japscan.lol"

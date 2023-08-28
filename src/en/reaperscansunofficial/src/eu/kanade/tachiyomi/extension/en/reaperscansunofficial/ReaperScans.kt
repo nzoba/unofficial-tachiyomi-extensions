@@ -46,8 +46,6 @@ class ReaperScans : ParsedHttpSource() {
 
     override val lang = "en"
 
-    override val id = 5177220001642863679
-
     override val supportsLatest = true
 
     private val json: Json by injectLazy()

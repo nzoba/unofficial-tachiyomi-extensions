@@ -6,7 +6,7 @@ ext {
     extName = 'Japscan Unofficial'
     pkgNameSuffix = 'fr.japscanunofficial'
     extClass = '.Japscan'
-    extVersionCode = 1
+    extVersionCode = 2
 }
 
 dependencies {
