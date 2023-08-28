@@ -1,7 +1,11 @@
 include(":core")
 
-include(":lib-dataimage")
-project(":lib-dataimage").projectDir = File("lib/dataimage")
+// all the directories under /lib instead of manually adding each to a list
+File(rootDir, "lib").eachDir {
+    val libName = it.name
+    include(":lib-$libName")
+    project(":lib-$libName").projectDir = File("lib/$libName")
+}
 
 if (System.getenv("CI") == null || System.getenv("CI_PUSH") == "true") {
     // Local development or full build for push

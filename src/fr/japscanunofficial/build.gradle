@@ -1,0 +1,16 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlinx-serialization'
+
+ext {
+    extName = 'Japscan Unofficial'
+    pkgNameSuffix = 'fr.japscanunofficial'
+    extClass = '.Japscan'
+    extVersionCode = 1
+}
+
+dependencies {
+    implementation(project(":lib-synchrony"))
+}
+
+apply from: "$rootDir/common.gradle"
