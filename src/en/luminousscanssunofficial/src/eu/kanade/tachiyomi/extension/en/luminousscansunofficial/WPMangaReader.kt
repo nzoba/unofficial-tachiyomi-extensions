@@ -73,36 +73,41 @@ abstract class WPMangaReader(
                 url.pathSegments[0] == baseMangaUrl.pathSegments[0]
             ).all { it }
             val potentiallyChapterUrl = pathLengthIs(url, 1)
-            if (isMangaUrl)
+            if (isMangaUrl) {
                 Single.just(url.pathSegments[1])
-            else if (potentiallyChapterUrl)
+            } else if (potentiallyChapterUrl) {
                 client.newCall(GET(s, headers)).asObservableSuccess().map {
                     val links = it.asJsoup().select("a[itemprop=item]")
-                    if (links.size == 3) //  near the top of page: home > manga > current chapter
+                    if (links.size == 3) {
+                        //  near the top of page: home > manga > current chapter
                         links[1].attr("href").toHttpUrlOrNull()?.pathSegments?.get(1)
-                    else
+                    } else {
                         null
+                    }
                 }.toSingle()
-            else
+            } else {
                 Single.just(null)
+            }
         } ?: Single.just(null)
     }
 
     override fun fetchSearchManga(page: Int, query: String, filters: FilterList): Observable<MangasPage> {
-        if (!query.startsWith(URL_SEARCH_PREFIX))
+        if (!query.startsWith(URL_SEARCH_PREFIX)) {
             return super.fetchSearchManga(page, query, filters)
+        }
 
         return mangaIdFromUrl(query.substringAfter(URL_SEARCH_PREFIX))
             .toObservable()
             .concatMap { id ->
-                if (id == null)
+                if (id == null) {
                     Observable.just(MangasPage(emptyList(), false))
-                else
+                } else {
                     fetchMangaDetails(SManga.create().apply { this.url = "$mangaUrlDirectory/$id" })
                         .map {
                             it.url = "$mangaUrlDirectory/$id" // isn't set in returned manga
                             MangasPage(listOf(it), false)
                         }
+                }
             }
     }
 
@@ -131,8 +136,9 @@ abstract class WPMangaReader(
     open val projectPageString = "/project"
 
     override fun searchMangaParse(response: Response): MangasPage {
-        if (genrelist == null)
+        if (genrelist == null) {
             genrelist = parseGenres(response.asJsoup(response.peekBody(Long.MAX_VALUE).string()))
+        }
         return super.searchMangaParse(response)
     }
 
@@ -288,7 +294,7 @@ abstract class WPMangaReader(
             GenreFilter(),
             StatusFilter(),
             TypesFilter(),
-            OrderByFilter(),
+            OrderByFilter()
         )
         if (hasProjectPage) {
             filters.addAll(
@@ -296,7 +302,7 @@ abstract class WPMangaReader(
                     Filter.Separator(),
                     Filter.Header("NOTE: cant be used with other filter!"),
                     Filter.Header("$name Project List page"),
-                    ProjectFilter(),
+                    ProjectFilter()
                 )
             )
         }
