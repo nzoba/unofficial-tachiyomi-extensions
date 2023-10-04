@@ -5,6 +5,8 @@ import android.content.SharedPreferences
 import android.net.Uri
 import android.util.Base64
 import android.util.Log
+import android.widget.Toast
+import eu.kanade.tachiyomi.lib.synchrony.Deobfuscator
 import eu.kanade.tachiyomi.network.GET
 import eu.kanade.tachiyomi.network.POST
 import eu.kanade.tachiyomi.network.interceptor.rateLimit
@@ -66,14 +68,22 @@ class Japscan : ConfigurableSource, ParsedHttpSource() {
 
         private const val CUSTOM_DECRYPT_KEYS_TITLE = "Utiliser des clés de decryptage custom"
         private const val CUSTOM_DECRYPT_KEYS = "JAPSCAN_CUSTOM_DECRYPT_KEYS"
+        private const val CUSTOM_DECRYPT_FORMAT = "Le format des clés n'est pas valide\n" +
+            "Exemple : key1,key2"
         private const val CUSTOM_DECRYPT_KEYS_SUMMARY = "Permet d'indiquer des clés de decryptage manuellement\n" +
             "Exemple : key1,key2\n" +
             "Laisser vide pour utiliser le comportement par défaut."
+
+        private const val LAST_WORKING_KEYS_PREF = "LAST_WORKING_KEYS_PREF"
     }
 
-    private fun chapterListPref() = preferences.getString(SHOW_SPOILER_CHAPTERS, "hide")
+    private fun chapterListPref() = preferences.getString(SHOW_SPOILER_CHAPTERS, "hide") as String
 
     private fun customKeysPref(): String = preferences.getString(CUSTOM_DECRYPT_KEYS, "") as String
+
+    private fun lastWorkingKeys() = preferences.getString(LAST_WORKING_KEYS_PREF, null)?.let {
+        it.split(",")[0] to it.split(",")[1]
+    }
 
     override fun headersBuilder() = super.headersBuilder()
         .add("referer", "$baseUrl/")
@@ -253,7 +263,7 @@ class Japscan : ConfigurableSource, ParsedHttpSource() {
     }
 
     override fun chapterListSelector() = "#chapters_list > div.collapse > div.chapters_list" +
-        if (chapterListPref() == "hide") { ":not(:has(.badge:contains(SPOILER),.badge:contains(RAW),.badge:contains(VUS)))" } else { "" }
+        if (chapterListPref() == "hide") { ":not(:has(.badge:contains(SPOILER),.badge:contains(RAW),.badge:contains(VUS),i:contains(Attention\\: )))" } else { "" }
     // JapScan sometimes uploads some "spoiler preview" chapters, containing 2 or 3 untranslated pictures taken from a raw. Sometimes they also upload full RAWs/US versions and replace them with a translation as soon as available.
     // Those have a span.badge "SPOILER" or "RAW". The additional pseudo selector makes sure to exclude these from the chapter list.
 
@@ -276,18 +286,22 @@ class Japscan : ConfigurableSource, ParsedHttpSource() {
         }
     }
 
-    private var lastWorkingKeys: Pair<String, String>? = null
+    private val decodingStringsRe: Regex = Regex("""'([\dA-Za-z]{62})'\n*\s*\.split""")
+
+    private val sortedLookupString: List<Char> = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".toCharArray().toList()
 
     override fun pageListParse(document: Document): List<Page> {
         val scrambledData = document.getElementById("data")!!.attr("data-data")
+
+        val lastWorkingKeys = lastWorkingKeys()
 
         // Try if any exist in cache
         if (lastWorkingKeys != null) {
             Log.d("japscan", "Try keys from cache $lastWorkingKeys")
             try {
-                return descramble(scrambledData, lastWorkingKeys!!)
+                return descramble(scrambledData, lastWorkingKeys)
             } catch (_: Throwable) {
-                lastWorkingKeys = null
+                preferences.edit().putString(LAST_WORKING_KEYS_PREF, null).apply()
             }
         }
 
@@ -299,22 +313,13 @@ class Japscan : ConfigurableSource, ParsedHttpSource() {
             } catch (_: Throwable) {}
         }
 
-        // Try all keys
-        Log.d("japscan", "Try all combinaisons")
-
-        // https://github.com/zormy111/japscangetkey project to get key with nodejs script
-        val jsonKey = client.newCall(
-            GET("https://gist.githubusercontent.com/zormy111/f6abdc7f9385e95203e2b6a64af15ea3/raw/", headers)
-        ).execute().body?.string() ?: error("Can't retrieve the json keys")
-        val parseKey = Json.parseToJsonElement(jsonKey).jsonArray
-        val stringLookupTables: List<String> = parseKey.map { it.jsonPrimitive.content }
-
-        try {
-            if (stringLookupTables.size >= 2) {
-                val pair: Pair<String, String> = stringLookupTables[1] to stringLookupTables[0]
-                return descramble(scrambledData, pair)
-            }
-        } catch (_: Throwable) {}
+        // Try zjs keys
+        for (keys in getZjsKeys(document)) {
+            Log.d("japscan", "Try keys from zjs $keys")
+            try {
+                return descramble(scrambledData, keys)
+            } catch (_: Throwable) {}
+        }
 
         throw Exception("Impossible de trouver les clés de désembrouillage")
     }
@@ -334,8 +339,8 @@ class Japscan : ConfigurableSource, ParsedHttpSource() {
 
         val data = json.parseToJsonElement(decoded).jsonObject
 
-        lastWorkingKeys = keys
-        Log.d("japscan", "Found working key $lastWorkingKeys. Storing it in cache.")
+        preferences.edit().putString(LAST_WORKING_KEYS_PREF, "${keys.first},${keys.second}").apply()
+        Log.d("japscan", "Found working key $keys. Storing it in cache.")
 
         return data["imagesLink"]!!.jsonArray.mapIndexed { idx, it ->
             Page(idx, imageUrl = it.jsonPrimitive.content)
@@ -343,7 +348,7 @@ class Japscan : ConfigurableSource, ParsedHttpSource() {
     }
 
     private fun getCustomKeys(): List<Pair<String, String>> {
-        val customKeys = customKeysPref()
+        val customKeys = customKeysPref().replace(" ", "")
         return if (customKeys.isNotBlank()) {
             listOf(
                 Pair(customKeys.split(',')[0], customKeys.split(',')[1]),
@@ -352,6 +357,32 @@ class Japscan : ConfigurableSource, ParsedHttpSource() {
         } else {
             emptyList()
         }
+    }
+
+    private fun getZjsKeys(document: Document): List<Pair<String, String>> {
+        val zjsurl = document.getElementsByTag("script").first {
+            it.attr("src").contains("zjs", ignoreCase = true)
+        }.attr("src")
+        Log.d("japscan", "ZJS at $zjsurl")
+
+        val obfuscatedZjs = client.newCall(GET(baseUrl + zjsurl, headers)).execute().body?.string()
+            ?: throw Exception("Impossible de récupérer le ZJS")
+        val zjs = Deobfuscator.deobfuscateScript(obfuscatedZjs) ?: throw Exception("Impossible à désobfusquer ZJS")
+
+        val stringLookupTables = decodingStringsRe.findAll(zjs).mapNotNull { match ->
+            match.groupValues[1].takeIf {
+                it.toCharArray().sorted() == sortedLookupString
+            }
+        }.distinct().toList()
+
+        if (stringLookupTables.size != 2) {
+            throw Exception("Attendait 2 chaînes de recherche dans ZJS, a trouvé ${stringLookupTables.size}")
+        }
+
+        return listOf(
+            stringLookupTables[0] to stringLookupTables[1],
+            stringLookupTables[1] to stringLookupTables[0]
+        )
     }
 
     override fun imageUrlParse(document: Document): String = ""
@@ -388,14 +419,17 @@ class Japscan : ConfigurableSource, ParsedHttpSource() {
         val keyPref = androidx.preference.EditTextPreference(screen.context).apply {
             key = CUSTOM_DECRYPT_KEYS
             title = CUSTOM_DECRYPT_KEYS_TITLE
-            summary = CUSTOM_DECRYPT_KEYS_SUMMARY
+            summary = customKeysPref().ifBlank { CUSTOM_DECRYPT_KEYS_SUMMARY }
             dialogMessage = CUSTOM_DECRYPT_KEYS_SUMMARY
 
             setOnPreferenceChangeListener { _, newValue ->
+                newValue as String
                 try {
-                    preferences.edit().putString(CUSTOM_DECRYPT_KEYS, newValue as String).commit()
+                    if (newValue.split(',').size != 2) throw Exception()
+                    summary = newValue.ifBlank { CUSTOM_DECRYPT_KEYS_SUMMARY }
                     true
                 } catch (e: Throwable) {
+                    Toast.makeText(screen.context, CUSTOM_DECRYPT_FORMAT, Toast.LENGTH_LONG).show()
                     false
                 }
             }
