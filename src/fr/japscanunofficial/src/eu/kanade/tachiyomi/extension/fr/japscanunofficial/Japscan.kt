@@ -425,9 +425,12 @@ class Japscan : ConfigurableSource, ParsedHttpSource() {
             setOnPreferenceChangeListener { _, newValue ->
                 newValue as String
                 try {
-                    if (newValue.split(',').size != 2) throw Exception()
-                    summary = newValue.ifBlank { CUSTOM_DECRYPT_KEYS_SUMMARY }
-                    true
+                    if (newValue.isNotBlank() && newValue.split(',').size != 2) throw Exception()
+                    val formattedValue = newValue.trim().ifBlank { "" }
+                    preferences.edit().putString(CUSTOM_DECRYPT_KEYS, formattedValue).apply()
+                    summary = formattedValue.ifBlank { CUSTOM_DECRYPT_KEYS_SUMMARY }
+                    text = formattedValue
+                    false
                 } catch (e: Throwable) {
                     Toast.makeText(screen.context, CUSTOM_DECRYPT_FORMAT, Toast.LENGTH_LONG).show()
                     false
@@ -437,18 +440,11 @@ class Japscan : ConfigurableSource, ParsedHttpSource() {
         screen.addPreference(keyPref)
 
         val chapterListPref = androidx.preference.ListPreference(screen.context).apply {
-            key = SHOW_SPOILER_CHAPTERS_Title
+            key = SHOW_SPOILER_CHAPTERS
             title = SHOW_SPOILER_CHAPTERS_Title
             entries = prefsEntries
             entryValues = prefsEntryValues
             summary = "%s"
-
-            setOnPreferenceChangeListener { _, newValue ->
-                val selected = newValue as String
-                val index = this.findIndexOfValue(selected)
-                val entry = entryValues[index] as String
-                preferences.edit().putString(SHOW_SPOILER_CHAPTERS, entry).commit()
-            }
         }
         screen.addPreference(chapterListPref)
     }
