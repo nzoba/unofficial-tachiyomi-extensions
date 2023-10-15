@@ -51,7 +51,9 @@ class ReaperScans : ParsedHttpSource() {
     private val json: Json by injectLazy()
 
     override val client: OkHttpClient = network.cloudflareClient.newBuilder()
-        .rateLimit(1, 2, TimeUnit.SECONDS)
+        .connectTimeout(10, TimeUnit.SECONDS)
+        .readTimeout(30, TimeUnit.SECONDS)
+        .rateLimit(3, 5, TimeUnit.SECONDS)
         .build()
 
     // Popular

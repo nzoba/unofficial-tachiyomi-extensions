@@ -36,6 +36,7 @@ import uy.kohesive.injekt.injectLazy
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Locale
+import java.util.concurrent.TimeUnit
 
 class Japscan : ConfigurableSource, ParsedHttpSource() {
 
@@ -54,7 +55,9 @@ class Japscan : ConfigurableSource, ParsedHttpSource() {
     }
 
     override val client: OkHttpClient = network.cloudflareClient.newBuilder()
-        .rateLimit(1, 2)
+        .connectTimeout(10, TimeUnit.SECONDS)
+        .readTimeout(30, TimeUnit.SECONDS)
+        .rateLimit(1, 1, TimeUnit.SECONDS)
         .build()
 
     companion object {

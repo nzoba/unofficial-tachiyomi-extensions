@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.SharedPreferences
 import androidx.preference.PreferenceScreen
 import androidx.preference.SwitchPreferenceCompat
+import eu.kanade.tachiyomi.network.interceptor.rateLimit
 import eu.kanade.tachiyomi.source.Source
 import eu.kanade.tachiyomi.source.SourceFactory
 import eu.kanade.tachiyomi.source.model.FilterList
@@ -23,6 +24,7 @@ import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
 import uy.kohesive.injekt.injectLazy
 import java.io.IOException
+import java.util.concurrent.TimeUnit
 
 class LuminousScansFactory : SourceFactory {
     override fun createSources(): List<Source> = listOf(
@@ -45,12 +47,15 @@ class LuminousScans : WPMangaReader(
     }
 
     override val client: OkHttpClient = super.client.newBuilder()
+        .connectTimeout(10, TimeUnit.SECONDS)
+        .readTimeout(30, TimeUnit.SECONDS)
+        .rateLimit(1, 1, TimeUnit.SECONDS)
         .addInterceptor(::urlChangeInterceptor)
         .build()
 
     override fun pageListParse(document: Document): List<Page> {
         return document.select(pageSelector).mapIndexed { i, img ->
-            Page(i, "", img.attr("abs:src"))
+            Page(i, document.location(), img.attr("abs:src"))
         }
     }
 

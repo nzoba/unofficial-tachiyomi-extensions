@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Rect
+import eu.kanade.tachiyomi.network.interceptor.rateLimit
 import eu.kanade.tachiyomi.source.Source
 import eu.kanade.tachiyomi.source.SourceFactory
 import eu.kanade.tachiyomi.source.model.Page
@@ -22,7 +23,7 @@ import kotlin.random.Random
 
 class FlameScansFactory : SourceFactory {
     override fun createSources(): List<Source> = listOf(
-        FlameScans(),
+        FlameScans()
     )
 }
 
@@ -35,6 +36,7 @@ class FlameScans : WPMangaReader(
     override val client: OkHttpClient = network.cloudflareClient.newBuilder()
         .connectTimeout(10, TimeUnit.SECONDS)
         .readTimeout(30, TimeUnit.SECONDS)
+        .rateLimit(1, 1, TimeUnit.SECONDS)
         .addInterceptor(::composedImageIntercept)
         .build()
 
@@ -71,12 +73,12 @@ class FlameScans : WPMangaReader(
             }
             .mapIndexed { i, el ->
                 if (el.tagName() == "p") {
-                    Page(i, "", el.select("img").attr("abs:src"))
+                    Page(i, document.location(), el.select("img").attr("abs:src"))
                 } else {
                     val imageUrls = el.select("img")
                         .joinToString("|") { it.attr("abs:src") }
 
-                    Page(i, "", imageUrls + COMPOSED_SUFFIX)
+                    Page(i, document.location(), imageUrls + COMPOSED_SUFFIX)
                 }
             }
     }

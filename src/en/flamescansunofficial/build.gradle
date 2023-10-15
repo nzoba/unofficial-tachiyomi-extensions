@@ -5,7 +5,7 @@ ext {
     extName = 'Flame Scans Unofficial'
     pkgNameSuffix = 'en.flamescansunofficial'
     extClass = '.FlameScansFactory'
-    extVersionCode = 7
+    extVersionCode = 8
 }
 
 apply from: "$rootDir/common.gradle"
