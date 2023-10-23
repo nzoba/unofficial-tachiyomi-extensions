@@ -53,7 +53,7 @@ class ReaperScans : ParsedHttpSource() {
     override val client: OkHttpClient = network.cloudflareClient.newBuilder()
         .connectTimeout(10, TimeUnit.SECONDS)
         .readTimeout(30, TimeUnit.SECONDS)
-        .rateLimit(3, 5, TimeUnit.SECONDS)
+        .rateLimit(1, 2, TimeUnit.SECONDS)
         .build()
 
     // Popular
