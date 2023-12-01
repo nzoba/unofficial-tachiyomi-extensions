@@ -34,7 +34,7 @@ class LuminousScansFactory : SourceFactory {
 
 class LuminousScans : WPMangaReader(
     "Luminous Scans Unofficial",
-    "https://www.luminousscans.com",
+    "https://luminousscans.net",
     "en",
     "/series"
 ) {
