@@ -23,10 +23,10 @@
   {
     "name": "Tachiyomi: Luminous Scans Unofficial",
     "pkg": "eu.kanade.tachiyomi.extension.en.luminousscansunofficial",
-    "apk": "tachiyomi-en.luminousscansunofficial-v1.4.12.apk",
+    "apk": "tachiyomi-en.luminousscansunofficial-v1.4.13.apk",
     "lang": "en",
-    "code": 12,
-    "version": "1.4.12",
+    "code": 13,
+    "version": "1.4.13",
     "nsfw": 0,
     "hasReadme": 0,
     "hasChangelog": 0,
@@ -35,7 +35,7 @@
         "name": "Luminous Scans Unofficial",
         "lang": "en",
         "id": "480317867453698476",
-        "baseUrl": "https://www.luminousscans.com",
+        "baseUrl": "https://luminousscans.net",
         "versionId": 1,
         "hasCloudflare": 1
       }
@@ -65,10 +65,10 @@
   {
     "name": "Tachiyomi: Japscan Unofficial",
     "pkg": "eu.kanade.tachiyomi.extension.fr.japscanunofficial",
-    "apk": "tachiyomi-fr.japscanunofficial-v1.4.7.apk",
+    "apk": "tachiyomi-fr.japscanunofficial-v1.4.8.apk",
     "lang": "fr",
-    "code": 7,
-    "version": "1.4.7",
+    "code": 8,
+    "version": "1.4.8",
     "nsfw": 0,
     "hasReadme": 0,
     "hasChangelog": 0,
