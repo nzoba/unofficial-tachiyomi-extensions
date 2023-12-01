@@ -6,6 +6,8 @@ import android.net.Uri
 import android.util.Base64
 import android.util.Log
 import android.widget.Toast
+import androidx.preference.EditTextPreference
+import androidx.preference.SwitchPreferenceCompat
 import eu.kanade.tachiyomi.lib.synchrony.Deobfuscator
 import eu.kanade.tachiyomi.network.GET
 import eu.kanade.tachiyomi.network.POST
@@ -64,23 +66,22 @@ class Japscan : ConfigurableSource, ParsedHttpSource() {
         val dateFormat by lazy {
             SimpleDateFormat("dd MMM yyyy", Locale.US)
         }
-        private const val SHOW_SPOILER_CHAPTERS_Title = "Les chapitres en Anglais ou non traduit sont upload en tant que \" Spoilers \" sur Japscan"
-        private const val SHOW_SPOILER_CHAPTERS = "JAPSCAN_SPOILER_CHAPTERS"
-        private val prefsEntries = arrayOf("Montrer uniquement les chapitres traduit en Français", "Montrer les chapitres spoiler")
-        private val prefsEntryValues = arrayOf("hide", "show")
+        private const val ONLY_FRENCH_CHAPTERS_Title = "Français uniquement"
+        private const val ONLY_FRENCH_CHAPTERS_Summary = "Montrer uniquement les chapitres traduits en français"
+        private const val ONLY_FRENCH_CHAPTERS = "JAPSCAN_ONLY_FRENCH_CHAPTERS_BOOLEAN"
 
-        private const val CUSTOM_DECRYPT_KEYS_TITLE = "Utiliser des clés de decryptage custom"
+        private const val CUSTOM_DECRYPT_KEYS_Title = "Utiliser des clés de decryptage custom"
+        private const val CUSTOM_DECRYPT_KEYS_Summary = "Permet d'indiquer des clés de decryptage manuellement\n" +
+                "Exemple : key1,key2\n" +
+                "Laisser vide pour utiliser le comportement par défaut."
         private const val CUSTOM_DECRYPT_KEYS = "JAPSCAN_CUSTOM_DECRYPT_KEYS"
         private const val CUSTOM_DECRYPT_FORMAT = "Le format des clés n'est pas valide\n" +
             "Exemple : key1,key2"
-        private const val CUSTOM_DECRYPT_KEYS_SUMMARY = "Permet d'indiquer des clés de decryptage manuellement\n" +
-            "Exemple : key1,key2\n" +
-            "Laisser vide pour utiliser le comportement par défaut."
 
         private const val LAST_WORKING_KEYS_PREF = "LAST_WORKING_KEYS_PREF"
     }
 
-    private fun chapterListPref() = preferences.getString(SHOW_SPOILER_CHAPTERS, "hide") as String
+    private fun onlyShowFrenchChapters() = preferences.getBoolean(ONLY_FRENCH_CHAPTERS, false)
 
     private fun customKeysPref(): String = preferences.getString(CUSTOM_DECRYPT_KEYS, "") as String
 
@@ -266,7 +267,7 @@ class Japscan : ConfigurableSource, ParsedHttpSource() {
     }
 
     override fun chapterListSelector() = "#chapters_list > div.collapse > div.chapters_list" +
-        if (chapterListPref() == "hide") { ":not(:has(.badge:contains(SPOILER),.badge:contains(RAW),.badge:contains(VUS),i:contains(Attention\\: )))" } else { "" }
+        if (onlyShowFrenchChapters()) { ":not(:has(.badge:contains(SPOILER),.badge:contains(RAW),.badge:contains(VUS),i:contains(Attention\\: )))" } else { "" }
     // JapScan sometimes uploads some "spoiler preview" chapters, containing 2 or 3 untranslated pictures taken from a raw. Sometimes they also upload full RAWs/US versions and replace them with a translation as soon as available.
     // Those have a span.badge "SPOILER" or "RAW". The additional pseudo selector makes sure to exclude these from the chapter list.
 
@@ -419,11 +420,11 @@ class Japscan : ConfigurableSource, ParsedHttpSource() {
 
     // Prefs
     override fun setupPreferenceScreen(screen: androidx.preference.PreferenceScreen) {
-        val keyPref = androidx.preference.EditTextPreference(screen.context).apply {
+        val keyPref = EditTextPreference(screen.context).apply {
             key = CUSTOM_DECRYPT_KEYS
-            title = CUSTOM_DECRYPT_KEYS_TITLE
-            summary = customKeysPref().ifBlank { CUSTOM_DECRYPT_KEYS_SUMMARY }
-            dialogMessage = CUSTOM_DECRYPT_KEYS_SUMMARY
+            title = CUSTOM_DECRYPT_KEYS_Title
+            summary = customKeysPref().ifBlank { CUSTOM_DECRYPT_KEYS_Summary }
+            dialogMessage = CUSTOM_DECRYPT_KEYS_Summary
 
             setOnPreferenceChangeListener { _, newValue ->
                 newValue as String
@@ -431,7 +432,7 @@ class Japscan : ConfigurableSource, ParsedHttpSource() {
                     if (newValue.isNotBlank() && newValue.split(',').size != 2) throw Exception()
                     val formattedValue = newValue.trim().ifBlank { "" }
                     preferences.edit().putString(CUSTOM_DECRYPT_KEYS, formattedValue).apply()
-                    summary = formattedValue.ifBlank { CUSTOM_DECRYPT_KEYS_SUMMARY }
+                    summary = formattedValue.ifBlank { CUSTOM_DECRYPT_KEYS_Summary }
                     text = formattedValue
                     false
                 } catch (e: Throwable) {
@@ -442,12 +443,18 @@ class Japscan : ConfigurableSource, ParsedHttpSource() {
         }
         screen.addPreference(keyPref)
 
-        val chapterListPref = androidx.preference.ListPreference(screen.context).apply {
-            key = SHOW_SPOILER_CHAPTERS
-            title = SHOW_SPOILER_CHAPTERS_Title
-            entries = prefsEntries
-            entryValues = prefsEntryValues
-            summary = "%s"
+        val chapterListPref = SwitchPreferenceCompat(screen.context).apply {
+            key = ONLY_FRENCH_CHAPTERS
+            title = ONLY_FRENCH_CHAPTERS_Title
+            summary = ONLY_FRENCH_CHAPTERS_Summary
+            setDefaultValue(false)
+
+            setOnPreferenceChangeListener { _, newValue ->
+                val checkValue = newValue as Boolean
+                preferences.edit()
+                    .putBoolean(ONLY_FRENCH_CHAPTERS, checkValue)
+                    .commit()
+            }
         }
         screen.addPreference(chapterListPref)
     }
