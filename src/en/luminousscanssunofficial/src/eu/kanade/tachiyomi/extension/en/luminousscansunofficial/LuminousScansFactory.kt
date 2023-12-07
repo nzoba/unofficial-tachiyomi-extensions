@@ -90,7 +90,7 @@ class LuminousScans : WPMangaReader(
             .removeSuffix("/")
             .substringAfterLast("/")
 
-        val storedSlug = getSlugMap()[dbSlug] ?: dbSlug
+        val storedSlug = preferences.slugMap[dbSlug] ?: dbSlug
 
         return "$baseUrl$mangaUrlDirectory/$storedSlug/"
     }
@@ -107,7 +107,7 @@ class LuminousScans : WPMangaReader(
     private fun SManga.tempUrlToPermIfNeeded(): SManga {
         if (!preferences.permaUrlPref) return this
 
-        val slugMap = getSlugMap().toMutableMap()
+        val slugMap = preferences.slugMap
 
         val sMangaTitleFirstWord = this.title.split(" ")[0]
         if (!this.url.contains("/$sMangaTitleFirstWord", ignoreCase = true)) {
@@ -121,7 +121,7 @@ class LuminousScans : WPMangaReader(
 
             this.url = "$mangaUrlDirectory/$permaSlug/"
         }
-        putSlugMap(slugMap)
+        preferences.slugMap = slugMap
         return this
     }
 
@@ -150,14 +150,14 @@ class LuminousScans : WPMangaReader(
             .removeSuffix("/")
             .substringAfterLast("/")
 
-        val slugMap = getSlugMap().toMutableMap()
+        val slugMap = preferences.slugMap
 
         val storedSlug = slugMap[dbSlug] ?: dbSlug
 
         val response = chain.proceed(
             request.newBuilder()
                 .url("$baseUrl$mangaUrlDirectory/$storedSlug/")
-                .build()
+                .build(),
         )
 
         if (!response.isSuccessful && response.code == 404) {
@@ -167,21 +167,23 @@ class LuminousScans : WPMangaReader(
                 ?: throw IOException("Migrate from Luminous to Luminous")
 
             slugMap[dbSlug] = newSlug
-            putSlugMap(slugMap)
+            preferences.slugMap = slugMap
 
             return chain.proceed(
                 request.newBuilder()
                     .url("$baseUrl$mangaUrlDirectory/$newSlug/")
-                    .build()
+                    .build(),
             )
         }
 
         return response
     }
 
-    private fun getNewSlug(existingSlug: String, search: String): String? {
+    private fun getNewSlug(existingSlug: String, frag: String): String? {
         val permaSlug = existingSlug
             .replaceFirst(TEMP_TO_PERM_REGEX, "")
+
+        val search = frag.substringBefore("#")
 
         val mangas = client.newCall(searchMangaRequest(1, search, FilterList()))
             .execute()
@@ -197,28 +199,28 @@ class LuminousScans : WPMangaReader(
             ?.substringAfterLast("/")
     }
 
-    private fun putSlugMap(slugMap: MutableMap<String, String>) {
-        val serialized = json.encodeToString(slugMap)
-
-        preferences.edit().putString(PREF_URL_MAP, serialized).commit()
-    }
-
-    private fun getSlugMap(): Map<String, String> {
-        val serialized = preferences.getString(PREF_URL_MAP, null) ?: return emptyMap()
-
-        return try {
-            json.decodeFromString(serialized)
-        } catch (e: Exception) {
-            emptyMap()
-        }
-    }
-
     private fun String.toSearchQuery(): String {
         return this.trim()
             .lowercase()
             .replace(titleSpecialCharactersRegex, "+")
             .replace(trailingPlusRegex, "")
     }
+
+    private var SharedPreferences.slugMap: MutableMap<String, String>
+        get() {
+            val serialized = getString(PREF_URL_MAP, null) ?: return mutableMapOf()
+
+            return try {
+                json.decodeFromString(serialized)
+            } catch (e: Exception) {
+                mutableMapOf()
+            }
+        }
+        set(slugMap) {
+            val serialized = json.encodeToString(slugMap)
+            edit().putString(PREF_URL_MAP, serialized).commit()
+        }
+
 
     override fun setupPreferenceScreen(screen: PreferenceScreen) {
         val permanentMangaUrlPref = SwitchPreferenceCompat(screen.context).apply {
