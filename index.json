@@ -44,10 +44,10 @@
   {
     "name": "Tachiyomi: Reaper Scans Unofficial",
     "pkg": "eu.kanade.tachiyomi.extension.en.reaperscansunofficial",
-    "apk": "tachiyomi-en.reaperscansunofficial-v1.4.7.apk",
+    "apk": "tachiyomi-en.reaperscansunofficial-v1.4.8.apk",
     "lang": "en",
-    "code": 7,
-    "version": "1.4.7",
+    "code": 8,
+    "version": "1.4.8",
     "nsfw": 0,
     "hasReadme": 0,
     "hasChangelog": 0,
@@ -56,7 +56,7 @@
         "name": "Reaper Scans Unofficial",
         "lang": "en",
         "id": "5440079041698085584",
-        "baseUrl": "https://reapercomics.com",
+        "baseUrl": "https://reaperscans.com",
         "versionId": 1,
         "hasCloudflare": 1
       }
