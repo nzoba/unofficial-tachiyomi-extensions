@@ -2,7 +2,6 @@ package eu.kanade.tachiyomi.extension.fr.japscanunofficial
 
 import android.app.Application
 import android.content.SharedPreferences
-import android.net.Uri
 import android.util.Base64
 import android.util.Log
 import android.widget.Toast
@@ -11,6 +10,7 @@ import androidx.preference.SwitchPreferenceCompat
 import eu.kanade.tachiyomi.lib.synchrony.Deobfuscator
 import eu.kanade.tachiyomi.network.GET
 import eu.kanade.tachiyomi.network.POST
+import eu.kanade.tachiyomi.network.asObservableSuccess
 import eu.kanade.tachiyomi.network.interceptor.rateLimit
 import eu.kanade.tachiyomi.source.ConfigurableSource
 import eu.kanade.tachiyomi.source.model.Filter
@@ -27,15 +27,16 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import okhttp3.FormBody
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
+import rx.Observable
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
 import uy.kohesive.injekt.injectLazy
-import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.concurrent.TimeUnit
@@ -123,40 +124,64 @@ class Japscan : ConfigurableSource, ParsedHttpSource() {
     }
 
     // Latest
+    private lateinit var latestDirectory: List<Element>
+
+    override fun fetchLatestUpdates(page: Int): Observable<MangasPage> {
+        return if (page == 1) {
+            client.newCall(latestUpdatesRequest(page))
+                .asObservableSuccess()
+                .map { latestUpdatesParse(it) }
+        } else {
+            Observable.just(parseLatestDirectory(page))
+        }
+    }
+
     override fun latestUpdatesRequest(page: Int): Request {
         return GET(baseUrl, headers)
     }
 
     override fun latestUpdatesParse(response: Response): MangasPage {
         val document = response.asJsoup()
-        val mangas = document.select(latestUpdatesSelector())
+
+        latestDirectory = document.select(latestUpdatesSelector())
             .distinctBy { element -> element.select("a").attr("href") }
-            .map { element ->
-                latestUpdatesFromElement(element)
-            }
-        val hasNextPage = false
-        return MangasPage(mangas, hasNextPage)
+
+        return parseLatestDirectory(1)
     }
 
-    override fun latestUpdatesNextPageSelector(): String? = null
+    private fun parseLatestDirectory(page: Int): MangasPage {
+        val manga = mutableListOf<SManga>()
+        val end = ((page * 24) - 1).let { if (it <= latestDirectory.lastIndex) it else latestDirectory.lastIndex }
 
-    override fun latestUpdatesSelector() = "#chapters h3.text-truncate, #chapters_list h3.text-truncate"
+        for (i in (((page - 1) * 24)..end)) {
+            manga.add(latestUpdatesFromElement(latestDirectory[i]))
+        }
+
+        return MangasPage(manga, end < latestDirectory.lastIndex)
+    }
+
+    override fun latestUpdatesSelector() = "#chapters h3.mb-0"
 
     override fun latestUpdatesFromElement(element: Element): SManga = popularMangaFromElement(element)
+
+    override fun latestUpdatesNextPageSelector(): String = throw UnsupportedOperationException()
 
     // Search
     override fun searchMangaRequest(page: Int, query: String, filters: FilterList): Request {
         if (query.isEmpty()) {
-            val uri = Uri.parse(baseUrl).buildUpon()
-                .appendPath("mangas")
-            filters.forEach { filter ->
-                when (filter) {
-                    is TextField -> uri.appendPath(((page - 1) + filter.state.toInt()).toString())
-                    is PageList -> uri.appendPath(((page - 1) + filter.values[filter.state]).toString())
-                    else -> {}
+            val url = baseUrl.toHttpUrl().newBuilder().apply {
+                addPathSegment("mangas")
+
+                filters.forEach { filter ->
+                    when (filter) {
+                        is TextField -> addPathSegment(((page - 1) + filter.state.toInt()).toString())
+                        is PageList -> addPathSegment(((page - 1) + filter.values[filter.state]).toString())
+                        else -> {}
+                    }
                 }
-            }
-            return GET(uri.toString(), headers)
+            }.build()
+
+            return GET(url, headers)
         } else {
             val formBody = FormBody.Builder()
                 .add("search", query)
@@ -165,46 +190,16 @@ class Japscan : ConfigurableSource, ParsedHttpSource() {
                 .add("X-Requested-With", "XMLHttpRequest")
                 .build()
 
-            try {
-                val searchRequest = POST("$baseUrl/live-search/", searchHeaders, formBody)
-                val searchResponse = client.newCall(searchRequest).execute()
-
-                if (!searchResponse.isSuccessful) {
-                    throw Exception("Code ${searchResponse.code} inattendu")
-                }
-
-                if (searchResponse.body == null) {
-                    error("SearchResponse body is null")
-                }
-
-                val jsonResult = json.parseToJsonElement(searchResponse.body!!.string()).jsonArray
-
-                if (jsonResult.isEmpty()) {
-                    Log.d("japscan", "Search not returning anything, using duckduckgo")
-                    throw Exception("Pas de données")
-                }
-
-                return searchRequest
-            } catch (e: Exception) {
-                // Fallback to duckduckgo if the search does not return any result
-                val uri = Uri.parse("https://duckduckgo.com/lite/").buildUpon()
-                    .appendQueryParameter("q", "$query site:$baseUrl/manga/")
-                    .appendQueryParameter("kd", "-1")
-                return GET(uri.toString(), headers)
-            }
+            return POST("$baseUrl/live-search/", searchHeaders, formBody)
         }
     }
 
-    override fun searchMangaNextPageSelector(): String = "li.page-item:last-child:not(li.active),.next_form .navbutton"
+    override fun searchMangaNextPageSelector(): String = "li.page-item:last-child:not(li.active)"
 
-    override fun searchMangaSelector(): String = "div.card div.p-2, a.result-link"
+    override fun searchMangaSelector(): String = "div.card div.p-2"
 
     override fun searchMangaParse(response: Response): MangasPage {
-        if ("live-search" in response.request.url.toString()) {
-            if (response.body == null) {
-                error("Response body is null")
-            }
-
+        if (response.request.url.pathSegments.first() == "live-search") {
             val jsonResult = json.parseToJsonElement(response.body!!.string()).jsonArray
 
             val mangaList = jsonResult.map { jsonEl -> searchMangaFromJson(jsonEl.jsonObject) }
@@ -212,29 +207,32 @@ class Japscan : ConfigurableSource, ParsedHttpSource() {
             return MangasPage(mangaList, hasNextPage = false)
         }
 
-        return super.searchMangaParse(response)
+        val baseUrlHost = baseUrl.toHttpUrl().host
+        val document = response.asJsoup()
+        val manga = document
+            .select(searchMangaSelector())
+            .filter { it ->
+                // Filter out ads masquerading as search results
+                it.select("p a").attr("abs:href").toHttpUrl().host == baseUrlHost
+            }
+            .map(::searchMangaFromElement)
+        val hasNextPage = document.selectFirst(searchMangaNextPageSelector()) != null
+
+        return MangasPage(manga, hasNextPage)
     }
 
-    override fun searchMangaFromElement(element: Element): SManga {
-        return if (element.attr("class") == "result-link") {
-            SManga.create().apply {
-                title = element.text().substringAfter(" ").substringBefore(" | JapScan")
-                setUrlWithoutDomain(element.attr("abs:href"))
-            }
-        } else {
-            SManga.create().apply {
-                thumbnail_url = element.select("img").attr("abs:src")
-                element.select("p a").let {
-                    title = it.text()
-                    url = it.attr("href")
-                }
-            }
+    override fun searchMangaFromElement(element: Element) = SManga.create().apply {
+        thumbnail_url = element.select("img").attr("abs:src")
+        element.select("p a").let {
+            title = it.text()
+            url = it.attr("href")
         }
     }
 
     private fun searchMangaFromJson(jsonObj: JsonObject): SManga = SManga.create().apply {
-        title = jsonObj["name"]!!.jsonPrimitive.content
         url = jsonObj["url"]!!.jsonPrimitive.content
+        title = jsonObj["name"]!!.jsonPrimitive.content
+        thumbnail_url = baseUrl + jsonObj["image"]!!.jsonPrimitive.content
     }
 
     override fun mangaDetailsParse(document: Document): SManga {
@@ -282,13 +280,9 @@ class Japscan : ConfigurableSource, ParsedHttpSource() {
         return chapter
     }
 
-    private fun parseChapterDate(date: String): Long {
-        return try {
-            dateFormat.parse(date)?.time ?: 0
-        } catch (e: ParseException) {
-            0L
-        }
-    }
+    private fun parseChapterDate(date: String) = runCatching {
+        dateFormat.parse(date)!!.time
+    }.getOrDefault(0L)
 
     private val decodingStringsRe: Regex = Regex("""'([\dA-Za-z]{62})'\n*\s*\.split""")
 
@@ -346,9 +340,11 @@ class Japscan : ConfigurableSource, ParsedHttpSource() {
         preferences.edit().putString(LAST_WORKING_KEYS_PREF, "${keys.first},${keys.second}").apply()
         Log.d("japscan", "Found working key $keys. Storing it in cache.")
 
-        return data["imagesLink"]!!.jsonArray.mapIndexed { idx, it ->
-            Page(idx, imageUrl = it.jsonPrimitive.content)
-        }
+        return data["imagesLink"]!!.jsonArray
+            .filterNot { it.jsonPrimitive.content.toHttpUrl().host == baseUrl.toHttpUrl().host } // Pages not served through their CDN are probably ads
+            .mapIndexed { i, it ->
+                Page(i, imageUrl = it.jsonPrimitive.content)
+            }
     }
 
     private fun getCustomKeys(): List<Pair<String, String>> {
