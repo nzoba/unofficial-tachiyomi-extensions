@@ -9,7 +9,7 @@ android {
         minSdk = AndroidConfig.minSdk
     }
 
-    namespace = "eu.kanade.tachiyomi.extension"
+    namespace = "eu.kanade.tachiyomi.extension.core"
 
     sourceSets {
         named("main") {
@@ -18,9 +18,8 @@ android {
         }
     }
 
-    libraryVariants.all {
-        generateBuildConfigProvider?.configure {
-            enabled = false
-        }
+    buildFeatures {
+        resValues = false
+        shaders = false
     }
 }

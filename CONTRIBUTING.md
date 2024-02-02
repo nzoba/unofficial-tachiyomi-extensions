@@ -70,15 +70,10 @@ A minimal [Android manifest file](https://developer.android.com/guide/topics/man
 Make sure that your new extension's `build.gradle` file follows the following structure:
 
 ```gradle
-apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
-
 ext {
     extName = '<My source name>'
-    pkgNameSuffix = '<lang>.<mysourcename>'
     extClass = '.<MySourceName>'
     extVersionCode = 1
-    libVersion = '1.2'
     isNsfw = true
 }
 
@@ -88,13 +83,9 @@ apply from: "$rootDir/common.gradle"
 | Field | Description |
 | ----- | ----------- |
 | `extName` | The name of the extension. |
-| `pkgNameSuffix` | A unique suffix added to `eu.kanade.tachiyomi.extension`. The language and the site name should be enough. Remember your extension code implementation must be placed in this package. |
 | `extClass` | Points to the class that implements `Source`. You can use a relative path starting with a dot (the package name is the base path). This is used to find and instantiate the source(s). |
 | `extVersionCode` | The extension version code. This must be a positive integer and incremented with any change to the code. |
-| `libVersion` | The version of the [extensions library](https://github.com/tachiyomiorg/extensions-lib) used. |
 | `isNsfw` | (Optional, defaults to `false`) Flag to indicate that a source contains NSFW content. |
-
-The extension's version name is generated automatically by concatenating `libVersion` and `extVersionCode`. With the example used above, the version would be `1.2.1`.
 
 ### Core dependencies
 

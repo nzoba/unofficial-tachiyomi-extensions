@@ -1,9 +1,5 @@
-apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
-
 ext {
     extName = 'Luminous Scans Unofficial'
-    pkgNameSuffix = 'en.luminousscansunofficial'
     extClass = '.LuminousScansFactory'
     extVersionCode = 14
 }

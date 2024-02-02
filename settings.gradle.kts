@@ -1,32 +1,17 @@
 include(":core")
 
-// all the directories under /lib instead of manually adding each to a list
-File(rootDir, "lib").eachDir {
-    val libName = it.name
-    include(":lib-$libName")
-    project(":lib-$libName").projectDir = File("lib/$libName")
-}
+// Load all modules under /lib
+File(rootDir, "lib").eachDir { include("lib:${it.name}") }
 
 if (System.getenv("CI") == null || System.getenv("CI_PUSH") == "true") {
     // Local development or full build for push
 
-    // Loads all extensions
-    File(rootDir, "src").eachDir { dir ->
-        dir.eachDir { subdir ->
-            val name = ":extensions:individual:${dir.name}:${subdir.name}"
-            include(name)
-            project(name).projectDir = File("src/${dir.name}/${subdir.name}")
-        }
-    }
-
     /**
-     * If you're developing locally and only want to work with a single module,
-     * comment out the parts above and uncomment below.
+     * Add or remove modules to load as needed for local development here.
+     * To generate multisrc extensions first, run the `:multisrc:generateExtensions` task first.
      */
-    // val lang = "all"
-    // val name = "mmrcms"
-    // include(":${lang}-${name}")
-    // project(":${lang}-${name}").projectDir = File("src/${lang}/${name}")
+    loadAllIndividualExtensions()
+    // loadIndividualExtension("all", "mangadex")
 } else {
     // Running in CI (GitHub Actions)
 
@@ -42,6 +27,22 @@ if (System.getenv("CI") == null || System.getenv("CI_PUSH") == "true") {
             }
         }
     }
+}
+
+fun loadAllIndividualExtensions() {
+    File(rootDir, "src").eachDir { dir ->
+        dir.eachDir { subdir ->
+            val name = ":extensions:individual:${dir.name}:${subdir.name}"
+            include(name)
+            project(name).projectDir = File("src/${dir.name}/${subdir.name}")
+        }
+    }
+}
+
+fun loadIndividualExtension(lang: String, name: String) {
+    val projectName = ":extensions:individual:$lang:$name"
+    include(projectName)
+    project(projectName).projectDir = File("src/${lang}/${name}")
 }
 
 fun File.eachDir(block: (File) -> Unit) {
