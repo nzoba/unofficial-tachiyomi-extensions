@@ -15,8 +15,7 @@
         "lang": "en",
         "id": "7887134009011954690",
         "baseUrl": "https://flamescans.org",
-        "versionId": 1,
-        "hasCloudflare": 1
+        "versionId": 1
       }
     ]
   },
@@ -36,8 +35,7 @@
         "lang": "en",
         "id": "480317867453698476",
         "baseUrl": "https://luminousscans.net",
-        "versionId": 1,
-        "hasCloudflare": 1
+        "versionId": 1
       }
     ]
   },
@@ -57,18 +55,17 @@
         "lang": "en",
         "id": "5440079041698085584",
         "baseUrl": "https://reaperscans.com",
-        "versionId": 1,
-        "hasCloudflare": 1
+        "versionId": 1
       }
     ]
   },
   {
     "name": "Tachiyomi: Japscan Unofficial",
     "pkg": "eu.kanade.tachiyomi.extension.fr.japscanunofficial",
-    "apk": "tachiyomi-fr.japscanunofficial-v1.4.8.apk",
+    "apk": "tachiyomi-fr.japscanunofficial-v1.4.9.apk",
     "lang": "fr",
-    "code": 8,
-    "version": "1.4.8",
+    "code": 9,
+    "version": "1.4.9",
     "nsfw": 0,
     "hasReadme": 0,
     "hasChangelog": 0,
@@ -78,8 +75,7 @@
         "lang": "fr",
         "id": "8626226397710352170",
         "baseUrl": "https://www.japscan.lol",
-        "versionId": 1,
-        "hasCloudflare": 1
+        "versionId": 1
       }
     ]
   }
