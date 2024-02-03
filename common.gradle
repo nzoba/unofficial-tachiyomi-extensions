@@ -9,7 +9,7 @@ assert !ext.has("libVersion")
 android {
     compileSdk AndroidConfig.compileSdk
 
-    namespace = "eu.kanade.tachiyomi.extension"
+    namespace "eu.kanade.tachiyomi.extension"
     sourceSets {
         main {
             manifest.srcFile "AndroidManifest.xml"
