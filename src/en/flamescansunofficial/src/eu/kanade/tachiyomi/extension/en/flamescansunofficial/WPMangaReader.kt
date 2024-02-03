@@ -28,7 +28,7 @@ abstract class WPMangaReader(
     override val baseUrl: String,
     override val lang: String,
     val mangaUrlDirectory: String = "/manga",
-    private val dateFormat: SimpleDateFormat = SimpleDateFormat("MMMM dd, yyyy", Locale.US)
+    private val dateFormat: SimpleDateFormat = SimpleDateFormat("MMMM dd, yyyy", Locale.US),
 ) : ParsedHttpSource() {
 
     override val supportsLatest = true
@@ -69,7 +69,7 @@ abstract class WPMangaReader(
             val isMangaUrl = listOf(
                 baseMangaUrl.host == url.host,
                 pathLengthIs(url, 2),
-                url.pathSegments[0] == baseMangaUrl.pathSegments[0]
+                url.pathSegments[0] == baseMangaUrl.pathSegments[0],
             ).all { it }
             val potentiallyChapterUrl = pathLengthIs(url, 1)
             if (isMangaUrl) {
@@ -298,7 +298,7 @@ abstract class WPMangaReader(
             GenreFilter(),
             StatusFilter(),
             TypesFilter(),
-            OrderByFilter()
+            OrderByFilter(),
         )
         if (hasProjectPage) {
             filters.addAll(
@@ -306,8 +306,8 @@ abstract class WPMangaReader(
                     Filter.Separator(),
                     Filter.Header("NOTE: cant be used with other filter!"),
                     Filter.Header("$name Project List page"),
-                    ProjectFilter()
-                )
+                    ProjectFilter(),
+                ),
             )
         }
         return FilterList(filters)
@@ -317,8 +317,8 @@ abstract class WPMangaReader(
         "Filter Project",
         arrayOf(
             Pair("Show all manga", ""),
-            Pair("Show only project manga", "project-filter-on")
-        )
+            Pair("Show only project manga", "project-filter-on"),
+        ),
     )
 
     open class UriPartFilter(displayName: String, private val vals: Array<Pair<String, String>>) :
@@ -364,7 +364,7 @@ abstract class WPMangaReader(
         LabeledValue("All", ""),
         LabeledValue("Ongoing", "ongoing"),
         LabeledValue("Completed", "completed"),
-        LabeledValue("Hiatus", "hiatus")
+        LabeledValue("Hiatus", "hiatus"),
     )
 
     private fun getContentType() = arrayOf(
@@ -372,7 +372,7 @@ abstract class WPMangaReader(
         LabeledValue("Manga", "manga"),
         LabeledValue("Manhwa", "manhwa"),
         LabeledValue("Manhua", "manhua"),
-        LabeledValue("Comic", "comic")
+        LabeledValue("Comic", "comic"),
     )
 
     private fun getOrderBy() = arrayOf(
@@ -381,7 +381,7 @@ abstract class WPMangaReader(
         LabeledValue("Z-A", "titlereverse"),
         LabeledValue("Update", "update"),
         LabeledValue("Added", "latest"),
-        LabeledValue("Popular", "popular")
+        LabeledValue("Popular", "popular"),
     )
 
     companion object {

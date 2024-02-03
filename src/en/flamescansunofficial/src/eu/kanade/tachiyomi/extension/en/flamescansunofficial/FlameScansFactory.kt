@@ -23,7 +23,7 @@ import kotlin.random.Random
 
 class FlameScansFactory : SourceFactory {
     override fun createSources(): List<Source> = listOf(
-        FlameScans()
+        FlameScans(),
     )
 }
 
@@ -31,7 +31,7 @@ class FlameScans : WPMangaReader(
     "Flame Scans Unofficial",
     "https://flamescans.org",
     "en",
-    "/series"
+    "/series",
 ) {
     override val client: OkHttpClient = network.cloudflareClient.newBuilder()
         .connectTimeout(10, TimeUnit.SECONDS)

@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit
 
 class LuminousScansFactory : SourceFactory {
     override fun createSources(): List<Source> = listOf(
-        LuminousScans()
+        LuminousScans(),
     )
 }
 
@@ -36,7 +36,7 @@ class LuminousScans : WPMangaReader(
     "Luminous Scans Unofficial",
     "https://luminousscans.net",
     "en",
-    "/series"
+    "/series",
 ) {
     override val pageSelector = "div#readerarea img[class*=wp-image-]"
 
@@ -99,7 +99,7 @@ class LuminousScans : WPMangaReader(
         return this.map { mangasPage ->
             MangasPage(
                 mangasPage.mangas.map { it.tempUrlToPermIfNeeded() },
-                mangasPage.hasNextPage
+                mangasPage.hasNextPage,
             )
         }
     }
@@ -220,7 +220,6 @@ class LuminousScans : WPMangaReader(
             val serialized = json.encodeToString(slugMap)
             edit().putString(PREF_URL_MAP, serialized).commit()
         }
-
 
     override fun setupPreferenceScreen(screen: PreferenceScreen) {
         val permanentMangaUrlPref = SwitchPreferenceCompat(screen.context).apply {

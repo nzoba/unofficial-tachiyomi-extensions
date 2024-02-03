@@ -73,8 +73,8 @@ class Japscan : ConfigurableSource, ParsedHttpSource() {
 
         private const val CUSTOM_DECRYPT_KEYS_Title = "Utiliser des clés de decryptage custom"
         private const val CUSTOM_DECRYPT_KEYS_Summary = "Permet d'indiquer des clés de decryptage manuellement\n" +
-                "Exemple : key1,key2\n" +
-                "Laisser vide pour utiliser le comportement par défaut."
+            "Exemple : key1,key2\n" +
+            "Laisser vide pour utiliser le comportement par défaut."
         private const val CUSTOM_DECRYPT_KEYS = "JAPSCAN_CUSTOM_DECRYPT_KEYS"
         private const val CUSTOM_DECRYPT_FORMAT = "Le format des clés n'est pas valide\n" +
             "Exemple : key1,key2"
