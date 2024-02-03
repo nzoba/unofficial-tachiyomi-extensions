@@ -1,10 +1,10 @@
-| Build                                                                                             |
-|---------------------------------------------------------------------------------------------------|
-| ![CI](https://github.com/nzoba/unofficial-tachiyomi-extensions/workflows/CI/badge.svg?event=push) |
+| Build                                                                                                                                                                                                   |
+|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [![CI](https://github.com/nzoba/unofficial-tachiyomi-extensions/actions/workflows/build_push.yml/badge.svg)](https://github.com/nzoba/unofficial-tachiyomi-extensions/actions/workflows/build_push.yml) |
 
-# ![app icon](./.github/readme-images/app-icon.png) Unofficial Tachiyomi Extensions
+# Unofficial Tachiyomi Extensions
 
-This repository contains some alternative extensions from the official repository [Tachiyomi Extensions](https://github.com/tachiyomiorg/tachiyomi-extensions).
+This repository contains some extensions for Tachiyomi/Mihon and variants.
 
 ## Usage
 
@@ -28,5 +28,6 @@ Extension sources can be installed and uninstalled like regular apps, in `.apk` 
 
 ## Disclaimer
 
-The developer of this application does not have any affiliation with the content providers available or with the
-[Tachiyomi organization](https://github.com/tachiyomiorg).
+This project does not have any affiliation with the content providers available.
+
+This project is not affiliated with Mihon/Tachiyomi. Don't ask for help about these extensions at the official support means of Mihon/Tachiyomi. All credits to the codebase goes to the original contributors.
