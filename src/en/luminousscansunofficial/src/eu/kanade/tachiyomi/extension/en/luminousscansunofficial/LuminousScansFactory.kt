@@ -46,6 +46,9 @@ class LuminousScans : WPMangaReader(
         Injekt.get<Application>().getSharedPreferences("source_$id", 0x0000)
     }
 
+    override val baseUrl
+        get() = preferences.getString(PREF_BASE_URL, super.baseUrl) ?: super.baseUrl
+
     override val client: OkHttpClient = super.client.newBuilder()
         .connectTimeout(10, TimeUnit.SECONDS)
         .readTimeout(30, TimeUnit.SECONDS)
@@ -160,6 +163,18 @@ class LuminousScans : WPMangaReader(
                 .build(),
         )
 
+        if (request.url.host != response.request.url.host) {
+            response.close()
+            val newBaseUrl = baseUrl.replace(request.url.host, response.request.url.host)
+            preferences.edit().putString(PREF_BASE_URL, newBaseUrl).commit()
+
+            return chain.proceed(
+                request.newBuilder()
+                    .url("$newBaseUrl$mangaUrlDirectory/$storedSlug/")
+                    .build(),
+            )
+        }
+
         if (!response.isSuccessful && response.code == 404) {
             response.close()
 
@@ -249,6 +264,8 @@ class LuminousScans : WPMangaReader(
         private const val PREF_PERM_MANGA_URL_KEY_PREFIX = "pref_permanent_manga_url_"
         private const val PREF_PERM_MANGA_URL_TITLE = "Permanent Manga URL"
         private const val PREF_PERM_MANGA_URL_SUMMARY = "Turns all manga urls into permanent ones."
+
+        private const val PREF_BASE_URL = "pref_base_url"
 
         private const val PREF_URL_MAP = "pref_url_map"
         private val TEMP_TO_PERM_REGEX = Regex("""^\d+-""")
