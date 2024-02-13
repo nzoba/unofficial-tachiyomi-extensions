@@ -22,10 +22,10 @@
   {
     "name": "Tachiyomi: Luminous Scans Unofficial",
     "pkg": "eu.kanade.tachiyomi.extension.en.luminousscansunofficial",
-    "apk": "tachiyomi-en.luminousscansunofficial-v1.4.14.apk",
+    "apk": "tachiyomi-en.luminousscansunofficial-v1.4.15.apk",
     "lang": "en",
-    "code": 14,
-    "version": "1.4.14",
+    "code": 15,
+    "version": "1.4.15",
     "nsfw": 0,
     "hasReadme": 0,
     "hasChangelog": 0,
